@@ -1,0 +1,46 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem 3rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  color: #5c3d0a;
+  letter-spacing: 1px;
+  text-shadow: 2px 3px 0px rgba(0, 0, 0, 0.1);
+  font-weight: 400;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #8a6030;
+  margin-top: 0.4rem;
+  font-weight: 600;
+}
+
+.counter {
+  font-family: 'Fredoka One', cursive;
+  font-size: 17px;
+  color: #7c5c2a;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.hint {
+  font-size: 12px;
+  color: #a07840;
+  text-align: center;
+  margin-top: 0.4rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}

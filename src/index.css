@@ -1,0 +1,28 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: radial-gradient(ellipse at 60% 20%, #f5e6c8 0%, #e8d5a8 40%, #d4b87a 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 10% 90%, rgba(255, 255, 255, 0.18) 0%, transparent 40%),
+    radial-gradient(circle at 90% 10%, rgba(255, 255, 255, 0.14) 0%, transparent 35%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}

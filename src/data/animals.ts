@@ -1,0 +1,88 @@
+import { Animal } from '../types/animal';
+
+export const ANIMALS: Animal[] = [
+  {
+    emoji: '🐕',
+    name: 'Dog',
+    type: 'domestic',
+    desc: 'The oldest domesticated animal on Earth — loyal, clever, and endlessly loving companions.',
+    fact: 'Dogs can learn over 150 words and can count up to five!',
+  },
+  {
+    emoji: '🐈',
+    name: 'Cat',
+    type: 'domestic',
+    desc: 'Independent, curious, and graceful pets loved by millions across the world.',
+    fact: 'Cats spend about 70% of their lives sleeping.',
+  },
+  {
+    emoji: '🐄',
+    name: 'Cow',
+    type: 'domestic',
+    desc: 'Gentle bovines raised on farms for milk, meat, and leather worldwide.',
+    fact: 'Cows have best friends and get stressed when separated from them!',
+  },
+  {
+    emoji: '🐓',
+    name: 'Chicken',
+    type: 'domestic',
+    desc: 'One of the most common farm birds, kept for eggs, meat, and even as pets.',
+    fact: 'Chickens can remember and recognise over 100 different faces.',
+  },
+  {
+    emoji: '🐑',
+    name: 'Sheep',
+    type: 'domestic',
+    desc: 'Fluffy farm animals prized for their soft wool and gentle temperament.',
+    fact: 'Sheep can recognise up to 50 other sheep faces for years.',
+  },
+  {
+    emoji: '🐇',
+    name: 'Rabbit',
+    type: 'domestic',
+    desc: 'Soft, social pets that love to hop, explore, and be cuddled.',
+    fact: 'Rabbits cannot vomit — their digestive system is entirely one-way!',
+  },
+  {
+    emoji: '🦁',
+    name: 'Lion',
+    type: 'wild',
+    desc: 'The iconic king of the African savanna — social, powerful, and majestic.',
+    fact: "A lion's roar can be heard up to 8 kilometres away.",
+  },
+  {
+    emoji: '🐘',
+    name: 'Elephant',
+    type: 'wild',
+    desc: "Earth's largest land animal, famous for its incredible memory and empathy.",
+    fact: 'Elephants are the only animals known that truly cannot jump.',
+  },
+  {
+    emoji: '🦊',
+    name: 'Fox',
+    type: 'wild',
+    desc: 'Cunning and agile hunters that thrive in forests, deserts, and cities alike.',
+    fact: "Foxes use Earth's magnetic field to accurately locate prey underground!",
+  },
+  {
+    emoji: '🐺',
+    name: 'Wolf',
+    type: 'wild',
+    desc: 'Pack hunters of the wild — intelligent, loyal to family, and built for endurance.',
+    fact: 'Wolves can smell prey from over 1.5 kilometres away.',
+  },
+  {
+    emoji: '🦒',
+    name: 'Giraffe',
+    type: 'wild',
+    desc: 'The tallest animal on land, browsing treetops with its legendary long neck.',
+    fact: "A giraffe's tongue is up to 50 cm long — and it's dark blue!",
+  },
+  {
+    emoji: '🐧',
+    name: 'Penguin',
+    type: 'wild',
+    desc: 'Flightless birds of the southern hemisphere that swim with extraordinary speed.',
+    fact: 'Penguins propose to their mates by gifting a carefully chosen pebble.',
+  },
+];

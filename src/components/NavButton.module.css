@@ -1,0 +1,33 @@
+.btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid #c8a96e;
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+  color: #6b4c1e;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  user-select: none;
+  font-family: 'Nunito', sans-serif;
+}
+
+.btn:hover:not(:disabled) {
+  background: #fde68a;
+  transform: scale(1.1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
