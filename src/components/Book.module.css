@@ -10,6 +10,9 @@
   width: 300px;
   height: 400px;
   flex-shrink: 0;
+  /* Perspective makes the 3D rotation look realistic */
+  perspective: 1200px;
+  perspective-origin: center center;
 }
 
 /* Stacked page shadow layers */
@@ -39,7 +42,6 @@
   z-index: 2;
 }
 
-/* Responsive */
 @media (max-width: 480px) {
   .bookOuter {
     width: 260px;
