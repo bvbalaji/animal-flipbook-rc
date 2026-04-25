@@ -23,7 +23,7 @@ const App: React.FC = () => {
       <header className={styles.header}>
         <h1 className={styles.title}>🐾 Animal Flipbook</h1>
         <p className={styles.subtitle}>
-          Drag the left or right edge of the page to turn it!
+          Drag the right edge forward · left edge backward to turn pages
         </p>
       </header>
 
@@ -40,10 +40,6 @@ const App: React.FC = () => {
       <div className={styles.counter}>
         {currentIndex + 1} / {filteredAnimals.length}
       </div>
-
-      <p className={styles.hint}>
-        Drag the right edge forward · left edge backward
-      </p>
 
       <footer className={styles.footer}>© Made by Lokpriyanth — 2026</footer>
     </div>
