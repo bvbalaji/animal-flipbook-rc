@@ -6,7 +6,7 @@ import FlipBook from './components/FlipBook';
 import styles from './App.module.css';
 
 const App: React.FC = () => {
-  const [filter, setFilter] = useState<FilterType>('all');
+  const [filter, setFilter]       = useState<FilterType>('all');
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const filteredAnimals = filter === 'all'
@@ -22,24 +22,20 @@ const App: React.FC = () => {
     <div className={styles.app}>
       <header className={styles.header}>
         <h1 className={styles.title}>🐾 Animal Flipbook</h1>
-        <p className={styles.subtitle}>
-          Drag the right edge forward · left edge backward to turn pages
-        </p>
+        <p className={styles.subtitle}>Drag any page corner to turn it</p>
       </header>
 
       <FilterTabs active={filter} onChange={handleFilterChange} />
 
-      <div className={styles.bookWrap}>
-        <FlipBook
-          animals={filteredAnimals}
-          currentIndex={currentIndex}
-          onPageChange={setCurrentIndex}
-        />
-      </div>
+      <FlipBook
+        animals={filteredAnimals}
+        currentIndex={currentIndex}
+        onPageChange={setCurrentIndex}
+      />
 
-      <div className={styles.counter}>
-        {currentIndex + 1} / {filteredAnimals.length}
-      </div>
+      <p className={styles.hint}>
+        {currentIndex + 1} / {filteredAnimals.length} &nbsp;·&nbsp; drag corners or click edges to flip
+      </p>
 
       <footer className={styles.footer}>© Made by Lokpriyanth — 2026</footer>
     </div>

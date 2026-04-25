@@ -1,0 +1,219 @@
+/* ── Book wrapper ─────────────────────────────────────────────────────────── */
+.bookWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.2rem;
+}
+
+.flipBook {
+  /* let react-pageflip handle sizing */
+}
+
+/* ── Page base ────────────────────────────────────────────────────────────── */
+.page {
+  position: relative;
+  background: #fef9f0;
+  border: 1.5px solid #d4a96a;
+  border-radius: 0 14px 14px 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+/* ── Spine ────────────────────────────────────────────────────────────────── */
+.spine {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 22px;
+  background: linear-gradient(to right, #7a5420, #c08030, #a86e28, #7a5420);
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+/* ── Notebook lines ───────────────────────────────────────────────────────── */
+.lines {
+  position: absolute;
+  left: 22px; right: 0; top: 0; bottom: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 33px,
+    rgba(160, 120, 60, 0.13) 33px,
+    rgba(160, 120, 60, 0.13) 34px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Content layer ────────────────────────────────────────────────────────── */
+.content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 14px 10px 34px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Badge ────────────────────────────────────────────────────────────────── */
+.badge {
+  font-family: 'Nunito', sans-serif;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 30px;
+  margin-bottom: 8px;
+  margin-top: 2px;
+}
+
+.badgeDomestic { background: #fde68a; color: #78350f; }
+.badgeWild     { background: #bbf7d0; color: #065f46; }
+
+/* ── Emoji ────────────────────────────────────────────────────────────────── */
+.emoji {
+  font-size: 72px;
+  line-height: 1;
+  margin: 4px 0 10px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+  animation: bob 3s ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
+/* ── Name ─────────────────────────────────────────────────────────────────── */
+.name {
+  font-family: 'Fredoka One', cursive;
+  font-size: 26px;
+  font-weight: 400;
+  color: #2d1a04;
+  margin: 0 0 6px;
+  text-align: center;
+}
+
+/* ── Description ──────────────────────────────────────────────────────────── */
+.desc {
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #7a5220;
+  line-height: 1.55;
+  text-align: center;
+  margin: 0 0 0;
+}
+
+/* ── Fun fact box ─────────────────────────────────────────────────────────── */
+.fact {
+  margin-top: auto;
+  width: 100%;
+  background: linear-gradient(to bottom, rgba(255,246,196,0.94), rgba(255,232,140,0.88));
+  border: 1.4px dashed #c89820;
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 11.5px;
+  color: #5c3308;
+  line-height: 1.55;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.factLabel {
+  font-weight: 800;
+  color: #92400e;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.factText {
+  font-weight: 600;
+}
+
+/* ── Page number ──────────────────────────────────────────────────────────── */
+.pageNum {
+  font-family: 'Nunito', sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #b8945a;
+  letter-spacing: 0.4px;
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* ── Covers ───────────────────────────────────────────────────────────────── */
+.cover {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #8b5e1a 0%, #c8861e 40%, #a06820 70%, #7a4e14 100%);
+  border-radius: 0 14px 14px 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.coverBack {
+  background: linear-gradient(135deg, #7a4e14 0%, #a06820 50%, #8b5e1a 100%);
+  border-radius: 14px 0 0 14px;
+}
+
+.coverSpine {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 24px;
+  background: linear-gradient(to right, rgba(0,0,0,0.35), rgba(0,0,0,0.1), transparent);
+}
+
+.coverContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  text-align: center;
+}
+
+.coverEmoji {
+  font-size: 72px;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+}
+
+.coverTitle {
+  font-family: 'Fredoka One', cursive;
+  font-size: 32px;
+  font-weight: 400;
+  color: #fff8e8;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  margin: 0;
+}
+
+.coverSub {
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,240,200,0.85);
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.coverBackText {
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,240,200,0.8);
+  text-align: center;
+  margin: 0;
+}
