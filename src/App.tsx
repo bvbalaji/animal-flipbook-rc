@@ -1,47 +1,50 @@
-import React from 'react';
-import { useFlipbook } from './hooks/useFlipbook';
+import React, { useState } from 'react';
+import { FilterType } from './types/animal';
+import { ANIMALS } from './data/animals';
 import FilterTabs from './components/FilterTabs';
-import Book from './components/Book';
+import FlipBook from './components/FlipBook';
 import styles from './App.module.css';
 
 const App: React.FC = () => {
-  const {
-    filteredAnimals,
-    currentIndex,
-    filter,
-    setFilter,
-    goNext,
-    goPrev,
-    canGoNext,
-    canGoPrev,
-    swipeHandlers,
-  } = useFlipbook();
+  const [filter, setFilter] = useState<FilterType>('all');
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const filteredAnimals = filter === 'all'
+    ? ANIMALS
+    : ANIMALS.filter(a => a.type === filter);
+
+  const handleFilterChange = (f: FilterType) => {
+    setFilter(f);
+    setCurrentIndex(0);
+  };
 
   return (
     <div className={styles.app}>
       <header className={styles.header}>
         <h1 className={styles.title}>🐾 Animal Flipbook</h1>
         <p className={styles.subtitle}>
-          Discover domestic &amp; wild animals — flip the pages!
+          Drag the left or right edge of the page to turn it!
         </p>
       </header>
 
-      <FilterTabs active={filter} onChange={setFilter} />
+      <FilterTabs active={filter} onChange={handleFilterChange} />
 
-      <Book
-        animals={filteredAnimals}
-        currentIndex={currentIndex}
-        canGoPrev={canGoPrev}
-        canGoNext={canGoNext}
-        onPrev={goPrev}
-        onNext={goNext}
-        swipeHandlers={swipeHandlers}
-      />
+      <div className={styles.bookWrap}>
+        <FlipBook
+          animals={filteredAnimals}
+          currentIndex={currentIndex}
+          onPageChange={setCurrentIndex}
+        />
+      </div>
 
       <div className={styles.counter}>
         {currentIndex + 1} / {filteredAnimals.length}
       </div>
-      <p className={styles.hint}>Swipe left/right or use arrow keys to flip ✍</p>
+
+      <p className={styles.hint}>
+        Drag the right edge forward · left edge backward
+      </p>
+
       <footer className={styles.footer}>© Made by Lokpriyanth — 2026</footer>
     </div>
   );
