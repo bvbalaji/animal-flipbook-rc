@@ -11,6 +11,10 @@ interface BookProps {
   canGoNext: boolean;
   onPrev: () => void;
   onNext: () => void;
+  swipeHandlers: {
+    onTouchStart: (e: React.TouchEvent) => void;
+    onTouchEnd: (e: React.TouchEvent) => void;
+  };
 }
 
 const Book: React.FC<BookProps> = ({
@@ -20,6 +24,7 @@ const Book: React.FC<BookProps> = ({
   canGoNext,
   onPrev,
   onNext,
+  swipeHandlers,
 }) => (
   <div className={styles.wrapper}>
     <NavButton direction="prev" onClick={onPrev} disabled={!canGoPrev} />
@@ -34,6 +39,7 @@ const Book: React.FC<BookProps> = ({
         role="region"
         aria-label="Animal flipbook"
         aria-live="polite"
+        {...swipeHandlers}
       >
         {animals.map((animal, i) => (
           <AnimalPage

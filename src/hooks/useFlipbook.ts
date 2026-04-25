@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Animal, FilterType } from '../types/animal';
 import { ANIMALS } from '../data/animals';
+
+const SWIPE_THRESHOLD = 50; // minimum px to count as a swipe
 
 interface UseFlipbookReturn {
   filteredAnimals: Animal[];
@@ -12,11 +14,16 @@ interface UseFlipbookReturn {
   goPrev: () => void;
   canGoNext: boolean;
   canGoPrev: boolean;
+  swipeHandlers: {
+    onTouchStart: (e: React.TouchEvent) => void;
+    onTouchEnd: (e: React.TouchEvent) => void;
+  };
 }
 
 export function useFlipbook(): UseFlipbookReturn {
   const [filter, setFilterState] = useState<FilterType>('all');
   const [currentIndex, setCurrentIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
 
   const filteredAnimals: Animal[] =
     filter === 'all' ? ANIMALS : ANIMALS.filter((a) => a.type === filter);
@@ -38,6 +45,7 @@ export function useFlipbook(): UseFlipbookReturn {
     setCurrentIndex((i) => Math.max(i - 1, 0));
   }, []);
 
+  // Keyboard navigation
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') goNext();
@@ -45,6 +53,19 @@ export function useFlipbook(): UseFlipbookReturn {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
+  }, [goNext, goPrev]);
+
+  // Touch swipe handlers
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const onTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    if (deltaX < -SWIPE_THRESHOLD) goNext();       // swipe left  → next
+    else if (deltaX > SWIPE_THRESHOLD) goPrev();   // swipe right → prev
+    touchStartX.current = null;
   }, [goNext, goPrev]);
 
   return {
@@ -57,5 +78,6 @@ export function useFlipbook(): UseFlipbookReturn {
     goPrev,
     canGoNext,
     canGoPrev,
+    swipeHandlers: { onTouchStart, onTouchEnd },
   };
 }

@@ -14,6 +14,7 @@ const App: React.FC = () => {
     goPrev,
     canGoNext,
     canGoPrev,
+    swipeHandlers,
   } = useFlipbook();
 
   return (
@@ -34,12 +35,13 @@ const App: React.FC = () => {
         canGoNext={canGoNext}
         onPrev={goPrev}
         onNext={goNext}
+        swipeHandlers={swipeHandlers}
       />
 
       <div className={styles.counter}>
         {currentIndex + 1} / {filteredAnimals.length}
       </div>
-      <p className={styles.hint}>Use arrow keys or buttons to flip ✍</p>
+      <p className={styles.hint}>Swipe left/right or use arrow keys to flip ✍</p>
       <footer className={styles.footer}>© Made by Lokpriyanth — 2026</footer>
     </div>
   );
