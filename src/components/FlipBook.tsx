@@ -131,7 +131,6 @@ const TitleVerso = forwardRef<HTMLDivElement, Record<string, never>>(
         {/* Copyright block bottom */}
         <div className={styles.versoCopyright}>
           <p>© 2026 Lokpriyanth. All rights reserved.</p>
-          <p>Made with ❤️ using React &amp; TypeScript</p>
         </div>
       </div>
     </div>
@@ -213,11 +212,11 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
         minHeight={400}
         maxHeight={400}
         drawShadow
-        flippingTime={700}
-        usePortrait
+        flippingTime={800}
+        usePortrait={false}
         startZIndex={0}
         autoSize={false}
-        maxShadowOpacity={0.6}
+        maxShadowOpacity={0.7}
         showCover
         mobileScrollSupport={false}
         clickEventForward

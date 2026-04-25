@@ -22,7 +22,7 @@ const App: React.FC = () => {
     <div className={styles.app}>
       <header className={styles.header}>
         <h1 className={styles.title}>🐾 Animal Flipbook</h1>
-        <p className={styles.subtitle}>Drag any page corner to turn it</p>
+        <p className={styles.subtitle}>Drag a page corner to turn — pages rest on the left as you read</p>
       </header>
 
       <FilterTabs active={filter} onChange={handleFilterChange} />
@@ -34,7 +34,7 @@ const App: React.FC = () => {
       />
 
       <p className={styles.hint}>
-        {currentIndex + 1} / {filteredAnimals.length} &nbsp;·&nbsp; drag corners or click edges to flip
+        {currentIndex + 1} / {filteredAnimals.length} &nbsp;·&nbsp; open like a real book — turned pages stack left
       </p>
 
       <footer className={styles.footer}>© Made by Lokpriyanth — 2026</footer>
