@@ -3,7 +3,16 @@ import HTMLFlipBook from 'react-pageflip';
 import { Animal } from '../types/animal';
 import styles from './FlipBook.module.css';
 
-// ─── Single animal page ───────────────────────────────────────────────────────
+// ─── Page offset constants ────────────────────────────────────────────────────
+// Page layout inside react-pageflip (0-indexed):
+//   0 = CoverFront  (hard cover, right side)
+//   1 = TitleRecto  (right side of title spread)
+//   2 = TitleVerso  (left side of title spread — back of TitleRecto)
+//   3..N+2 = Animal pages
+//   N+3 = CoverBack (hard cover, left side)
+const ANIMAL_PAGE_OFFSET = 3; // first animal is at index 3
+
+// ─── Animal page ──────────────────────────────────────────────────────────────
 
 interface PageProps {
   animal: Animal;
@@ -37,18 +46,112 @@ const Page = forwardRef<HTMLDivElement, PageProps>(
 );
 Page.displayName = 'Page';
 
-// ─── Cover pages ──────────────────────────────────────────────────────────────
+// ─── Title page — Recto (right-hand page, shown first) ───────────────────────
 
-// forwardRef<Ref type, Props type> — covers with no custom props use Record<string,never>
+const TitleRecto = forwardRef<HTMLDivElement, Record<string, never>>(
+  (_props, ref) => (
+    <div ref={ref} className={styles.titleRecto}>
+      <div className={styles.spine} />
+      <div className={styles.lines} />
+      <div className={styles.titleRectoContent}>
+        {/* Decorative top band */}
+        <div className={styles.titleBand}>
+          <span className={styles.titleBandText}>A Collection of Animals</span>
+        </div>
+
+        {/* Main emoji cluster */}
+        <div className={styles.titleEmojiRow}>
+          <span>🐕</span><span>🦁</span><span>🐈</span>
+        </div>
+        <div className={styles.titleEmojiRow}>
+          <span>🐘</span><span>🐾</span><span>🦊</span>
+        </div>
+        <div className={styles.titleEmojiRow}>
+          <span>🐄</span><span>🐺</span><span>🐇</span>
+        </div>
+
+        {/* Title */}
+        <h1 className={styles.titleHeading}>Animal<br />Flipbook</h1>
+
+        {/* Subtitle */}
+        <p className={styles.titleSubtitle}>
+          Discover domestic &amp; wild animals<br />from around the world
+        </p>
+
+        {/* Decorative divider */}
+        <div className={styles.titleDivider}>
+          <span />
+          <span>🌿</span>
+          <span />
+        </div>
+
+        {/* Edition line */}
+        <p className={styles.titleEdition}>First Edition · 2026</p>
+      </div>
+    </div>
+  )
+);
+TitleRecto.displayName = 'TitleRecto';
+
+// ─── Title page — Verso (left-hand page, shown as the back/spread) ───────────
+
+const TitleVerso = forwardRef<HTMLDivElement, Record<string, never>>(
+  (_props, ref) => (
+    <div ref={ref} className={styles.titleVerso}>
+      {/* No spine here — this is the LEFT page */}
+      <div className={styles.lines} />
+      <div className={styles.titleVersoContent}>
+
+        {/* Publisher block top */}
+        <div className={styles.versoCrest}>🐾</div>
+        <p className={styles.versoPublisher}>Lokpriyanth Press</p>
+
+        <div className={styles.versoDivider} />
+
+        {/* About this book */}
+        <h2 className={styles.versoTitle}>About This Book</h2>
+        <p className={styles.versoBody}>
+          This flipbook takes you on a journey through the animal kingdom —
+          from faithful domestic companions who share our homes, to magnificent
+          wild creatures that roam forests, savannas, and oceans.
+        </p>
+        <p className={styles.versoBody}>
+          Each page features a fun fact, a description, and an illustration.
+          Flip through and discover something new about the animals we share
+          our world with.
+        </p>
+
+        <div className={styles.versoAnimalList}>
+          <span>🐕 Dog</span><span>🐈 Cat</span><span>🐄 Cow</span>
+          <span>🐓 Chicken</span><span>🐑 Sheep</span><span>🐇 Rabbit</span>
+          <span>🦁 Lion</span><span>🐘 Elephant</span><span>🦊 Fox</span>
+          <span>🐺 Wolf</span><span>🦒 Giraffe</span><span>🐧 Penguin</span>
+        </div>
+
+        {/* Copyright block bottom */}
+        <div className={styles.versoCopyright}>
+          <p>© 2026 Lokpriyanth. All rights reserved.</p>
+          <p>Made with ❤️ using React &amp; TypeScript</p>
+        </div>
+      </div>
+    </div>
+  )
+);
+TitleVerso.displayName = 'TitleVerso';
+
+// ─── Covers ───────────────────────────────────────────────────────────────────
+
 const CoverFront = forwardRef<HTMLDivElement, Record<string, never>>(
   (_props, ref) => (
     <div ref={ref} className={styles.cover}>
       <div className={styles.coverSpine} />
+      <div className={styles.coverDecorTop} />
       <div className={styles.coverContent}>
         <div className={styles.coverEmoji}>🐾</div>
         <h1 className={styles.coverTitle}>Animal Flipbook</h1>
         <p className={styles.coverSub}>Drag a page corner to turn</p>
       </div>
+      <div className={styles.coverDecorBottom} />
     </div>
   )
 );
@@ -60,6 +163,7 @@ const CoverBack = forwardRef<HTMLDivElement, Record<string, never>>(
       <div className={styles.coverContent}>
         <div className={styles.coverEmoji}>🐾</div>
         <p className={styles.coverBackText}>© Made by Lokpriyanth — 2026</p>
+        <p className={styles.coverBackSub}>Thank you for reading!</p>
       </div>
     </div>
   )
@@ -75,23 +179,21 @@ interface FlipBookProps {
 }
 
 const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange }) => {
-  // Type the ref directly as HTMLFlipBook so .pageFlip() is visible to TS
-  const bookRef = useRef<HTMLFlipBook>(null);
-  const prevIndex = useRef(currentIndex);
+  const bookRef    = useRef<HTMLFlipBook>(null);
+  const prevIndex  = useRef(currentIndex);
 
-  // When the filter tab resets the index to 0, jump the book back to cover
+  // When filter tabs reset index, jump book back to first animal page
   useEffect(() => {
     if (currentIndex !== prevIndex.current) {
       prevIndex.current = currentIndex;
-      // +1 because page 0 is the front cover
-      bookRef.current?.pageFlip().flip(currentIndex + 1);
+      bookRef.current?.pageFlip().flip(currentIndex + ANIMAL_PAGE_OFFSET);
     }
   }, [currentIndex]);
 
   const handleFlip = useCallback(
     (e: { data: number }) => {
-      // page 0 = front cover, 1..N = animals, N+1 = back cover
-      const animalIndex = e.data - 1;
+      // Subtract the offset to get the animal array index
+      const animalIndex = e.data - ANIMAL_PAGE_OFFSET;
       if (animalIndex >= 0 && animalIndex < animals.length) {
         onPageChange(animalIndex);
       }
@@ -126,8 +228,14 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
         onFlip={handleFlip}
         className={styles.flipBook}
       >
+        {/* Hard front cover */}
         <CoverFront />
 
+        {/* Title spread: Recto (right) + Verso (left) */}
+        <TitleRecto />
+        <TitleVerso />
+
+        {/* Animal pages */}
         {animals.map((animal, i) => (
           <Page
             key={`${animal.name}-${animal.type}`}
@@ -137,6 +245,7 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
           />
         ))}
 
+        {/* Hard back cover */}
         <CoverBack />
       </HTMLFlipBook>
     </div>

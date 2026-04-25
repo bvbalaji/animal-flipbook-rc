@@ -217,3 +217,252 @@
   text-align: center;
   margin: 0;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   TITLE PAGE — RECTO (right-hand page)
+══════════════════════════════════════════════════════════════════════════════ */
+
+.titleRecto {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #fef9f0 0%, #faecd8 100%);
+  border: 1.5px solid #d4a96a;
+  border-radius: 0 14px 14px 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.titleRectoContent {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 14px 18px 14px 32px;
+  box-sizing: border-box;
+  gap: 6px;
+}
+
+/* Top decorative band */
+.titleBand {
+  width: 100%;
+  background: linear-gradient(90deg, #8b5e1a, #c8861e, #8b5e1a);
+  border-radius: 6px;
+  padding: 5px 0;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.titleBandText {
+  font-family: 'Nunito', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #fff8e8;
+}
+
+/* Emoji grid */
+.titleEmojiRow {
+  display: flex;
+  gap: 10px;
+  font-size: 26px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+}
+
+/* Main heading */
+.titleHeading {
+  font-family: 'Fredoka One', cursive;
+  font-size: 34px;
+  font-weight: 400;
+  color: #2d1a04;
+  text-align: center;
+  line-height: 1.1;
+  margin: 4px 0 0;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Subtitle */
+.titleSubtitle {
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #7a5220;
+  text-align: center;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Ornamental divider */
+.titleDivider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 80%;
+  margin: 2px 0;
+}
+
+.titleDivider span:first-child,
+.titleDivider span:last-child {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c8a060, transparent);
+  display: block;
+}
+
+.titleDivider span:nth-child(2) {
+  font-size: 14px;
+}
+
+/* Edition line */
+.titleEdition {
+  font-family: 'Nunito', sans-serif;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #b8945a;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   TITLE PAGE — VERSO (left-hand page, back of title spread)
+══════════════════════════════════════════════════════════════════════════════ */
+
+.titleVerso {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #fdf4e4 0%, #f8e8c8 100%);
+  border: 1.5px solid #d4a96a;
+  border-radius: 14px 0 0 14px;
+  overflow: hidden;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.titleVersoContent {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  padding: 20px 18px 16px 18px;
+  box-sizing: border-box;
+}
+
+/* Publisher crest */
+.versoCrest {
+  font-size: 32px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+}
+
+.versoPublisher {
+  font-family: 'Fredoka One', cursive;
+  font-size: 13px;
+  font-weight: 400;
+  color: #8b5e1a;
+  letter-spacing: 1px;
+  margin: 2px 0 0;
+}
+
+.versoDivider {
+  width: 60%;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, #c8a060, transparent);
+  margin: 10px 0;
+}
+
+/* About section */
+.versoTitle {
+  font-family: 'Fredoka One', cursive;
+  font-size: 16px;
+  font-weight: 400;
+  color: #2d1a04;
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.versoBody {
+  font-family: 'Nunito', sans-serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #6b4c1e;
+  line-height: 1.55;
+  text-align: center;
+  margin: 0 0 6px;
+}
+
+/* Mini animal index */
+.versoAnimalList {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px 6px;
+  margin: 8px 0;
+  width: 100%;
+}
+
+.versoAnimalList span {
+  font-family: 'Nunito', sans-serif;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #7a5220;
+  text-align: center;
+  background: rgba(255,235,160,0.5);
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+/* Copyright block */
+.versoCopyright {
+  margin-top: auto;
+  text-align: center;
+  border-top: 1px dashed #c8a060;
+  padding-top: 8px;
+  width: 100%;
+}
+
+.versoCopyright p {
+  font-family: 'Nunito', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  color: #a07840;
+  margin: 2px 0;
+  letter-spacing: 0.3px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   COVER — extra decorative elements
+══════════════════════════════════════════════════════════════════════════════ */
+
+.coverDecorTop {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, #f0c060, #fff8c0, #f0c060);
+  opacity: 0.6;
+}
+
+.coverDecorBottom {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, #f0c060, #fff8c0, #f0c060);
+  opacity: 0.6;
+}
+
+.coverBackSub {
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,240,200,0.65);
+  margin: 4px 0 0;
+  letter-spacing: 0.3px;
+}
