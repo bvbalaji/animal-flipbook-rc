@@ -1,6 +1,7 @@
 import React, { forwardRef, useRef, useCallback, useEffect } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { Animal } from '../types/animal';
+import { useBookSize } from '../hooks/useBookSize';
 import styles from './FlipBook.module.css';
 
 // ─── Page offset constants ────────────────────────────────────────────────────
@@ -180,6 +181,7 @@ interface FlipBookProps {
 const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange }) => {
   const bookRef    = useRef<HTMLFlipBook>(null);
   const prevIndex  = useRef(currentIndex);
+  const { pageW, pageH } = useBookSize();
 
   // When filter tabs reset index, jump book back to first animal page
   useEffect(() => {
@@ -204,12 +206,12 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
     <div className={styles.bookWrap}>
       <HTMLFlipBook
         ref={bookRef}
-        width={300}
-        height={400}
+        width={pageW}
+        height={pageH}
         size="fixed"
-        minWidth={300}
+        minWidth={120}
         maxWidth={300}
-        minHeight={400}
+        minHeight={160}
         maxHeight={400}
         drawShadow
         flippingTime={800}
@@ -221,7 +223,7 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
         mobileScrollSupport={false}
         clickEventForward
         useMouseEvents
-        swipeDistance={30}
+        swipeDistance={20}
         showPageCorners
         disableFlipByClick={false}
         onFlip={handleFlip}

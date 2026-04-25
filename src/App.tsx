@@ -22,7 +22,7 @@ const App: React.FC = () => {
     <div className={styles.app}>
       <header className={styles.header}>
         <h1 className={styles.title}>🐾 Animal Flipbook</h1>
-        <p className={styles.subtitle}>Drag a page corner to turn — pages rest on the left as you read</p>
+        <p className={styles.subtitle}>Drag or swipe a page corner to turn</p>
       </header>
 
       <FilterTabs active={filter} onChange={handleFilterChange} />
