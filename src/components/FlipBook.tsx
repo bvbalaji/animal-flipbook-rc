@@ -19,13 +19,6 @@ function clamp(v: number, lo: number, hi: number) { return Math.max(lo, Math.min
 
 function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
 
-// Reflect point P across line A→B
-function reflect(p: Point, a: Point, b: Point): Point {
-  const dx = b.x - a.x, dy = b.y - a.y;
-  const t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx * dx + dy * dy);
-  return { x: 2 * (a.x + t * dx) - p.x, y: 2 * (a.y + t * dy) - p.y };
-}
-
 // Intersect infinite line A→B with segment C→D
 function lineSegIntersect(a: Point, b: Point, c: Point, d: Point): Point | null {
   const rx = b.x - a.x, ry = b.y - a.y;
