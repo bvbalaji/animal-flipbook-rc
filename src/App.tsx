@@ -40,6 +40,7 @@ const App: React.FC = () => {
         {currentIndex + 1} / {filteredAnimals.length}
       </div>
       <p className={styles.hint}>Use arrow keys or buttons to flip ✍</p>
+      <footer className={styles.footer}>© Made by Lokpriyanth — 2026</footer>
     </div>
   );
 };
