@@ -139,8 +139,8 @@ interface FlipBookProps {
 }
 
 const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange }) => {
-  const bookRef   = useRef<HTMLFlipBook>(null);
-  const prevIndex = useRef(currentIndex);
+  const bookRef    = useRef<HTMLFlipBook>(null);
+  const prevIndex  = useRef(currentIndex);
   const { pageW, pageH } = useBookSize();
 
   const wrapStyle = { '--pw': `${pageW}px` } as React.CSSProperties;
@@ -172,8 +172,11 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
 
   return (
     <div className={styles.bookWrap} style={wrapStyle}>
-      {/* Center spine: single overlay sitting between the two open pages */}
-      <div className={styles.centerSpine} aria-hidden="true" />
+      {/* Spine sits above pages normally (z-index 10), drops below during flip (z-index 0) */}
+      <div
+        className={styles.centerSpine}
+        aria-hidden="true"
+      />
 
       <HTMLFlipBook
         ref={bookRef}
@@ -195,7 +198,7 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
         clickEventForward
         useMouseEvents
         swipeDistance={20}
-        showPageCorners
+        showPageCorners={false}
         disableFlipByClick={false}
         onFlip={handleFlip}
         className={styles.flipBook}
