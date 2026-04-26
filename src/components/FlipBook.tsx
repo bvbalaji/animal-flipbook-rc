@@ -5,17 +5,21 @@ import { useBookSize } from '../hooks/useBookSize';
 import styles from './FlipBook.module.css';
 
 // Page layout (0-indexed) in landscape/spread mode:
-//   0          = CoverFront  (right, hard cover)
-//   1          = BlankLeft   (left,  hard — back of front cover)
-//   2          = IntroRight  (right — introduction recto)
-//   3          = IntroLeft   (left  — introduction verso)
-//   4 .. N+3   = Animal pages
-//   N+4        = CoverBack   (left,  hard cover)
+//   0        = CoverFront  (right, hard cover)
+//   1        = BlankLeft   (left,  hard — back of front cover)
+//   2        = IntroRight  (right — introduction recto)
+//   3        = IntroLeft   (left  — introduction verso)
+//   4..N+3   = Animal pages
+//   N+4      = CoverBack   (left,  hard cover)
 const ANIMAL_OFFSET = 4;
 
+// Inline styles applied once at construction time — no CSS class toggling,
+// so the transform is baked in from the very first paint. React-pageflip
+// never sees an un-rotated page.
+const SHELL_STYLE:   React.CSSProperties = { transform: 'rotate(180deg)' };
+const CONTENT_STYLE: React.CSSProperties = { transform: 'rotate(180deg)' };
+
 // ─── Animal page ──────────────────────────────────────────────────────────────
-// The PAGE SHELL is rotated 180° so the curl originates from the correct edge.
-// The CONTENT WRAPPER is counter-rotated 180° so everything inside reads normally.
 
 interface PageProps {
   animal: Animal;
@@ -27,17 +31,21 @@ interface PageProps {
 const Page = forwardRef<HTMLDivElement, PageProps>(({ animal, index, total, isLeft }, ref) => {
   const wild = animal.type === 'wild';
   return (
+    // SHELL: rotated 180° via inline style (applied at first render, no flash)
     <div
       ref={ref}
-      className={`${styles.page} ${styles.pageFlipped} ${isLeft ? styles.pageLeft : styles.pageRight} ${wild ? styles.wild : styles.domestic}`}
+      style={SHELL_STYLE}
+      className={`${styles.page} ${isLeft ? styles.pageLeft : styles.pageRight} ${wild ? styles.wild : styles.domestic}`}
     >
-      {/* Spine only on right-hand pages — but since page is rotated 180°,
-          spine must be on the RIGHT edge of the div so it appears on the
-          correct inner edge after rotation */}
+      {/* Spine at left:0 on the div. After 180° rotation this becomes the
+          right physical edge → sits at the center seam of the open book. */}
       {!isLeft && <div className={styles.spine} />}
       <div className={styles.lines} />
-      {/* Counter-rotate the content so it reads right-way up */}
-      <div className={`${isLeft ? styles.contentLeft : styles.content} ${styles.contentUnflipped}`}>
+      {/* CONTENT: counter-rotated 180° → 360° net → reads right-way up */}
+      <div
+        style={CONTENT_STYLE}
+        className={isLeft ? styles.contentLeft : styles.content}
+      >
         <div className={`${styles.badge} ${wild ? styles.badgeWild : styles.badgeDomestic}`}>
           {wild ? '🌿 Wild Animal' : '🏠 Domestic'}
         </div>
@@ -58,10 +66,10 @@ Page.displayName = 'Page';
 // ─── Introduction pages ───────────────────────────────────────────────────────
 
 const IntroRight = forwardRef<HTMLDivElement, Record<string, never>>((_props, ref) => (
-  <div ref={ref} className={`${styles.page} ${styles.pageFlipped} ${styles.pageRight} ${styles.introRight}`}>
+  <div ref={ref} style={SHELL_STYLE} className={`${styles.page} ${styles.pageRight} ${styles.introRight}`}>
     <div className={styles.spine} />
     <div className={styles.lines} />
-    <div className={`${styles.content} ${styles.contentUnflipped}`}>
+    <div style={CONTENT_STYLE} className={styles.content}>
       <div className={styles.introBand}><span>🐾 Animal Flipbook</span></div>
       <div className={styles.introEmojiCluster}>🐕 🦁 🐈 🐘 🦊 🐄 🐺 🐇 🐧</div>
       <h1 className={styles.introTitle}>Welcome!</h1>
@@ -81,9 +89,9 @@ const IntroRight = forwardRef<HTMLDivElement, Record<string, never>>((_props, re
 IntroRight.displayName = 'IntroRight';
 
 const IntroLeft = forwardRef<HTMLDivElement, Record<string, never>>((_props, ref) => (
-  <div ref={ref} className={`${styles.page} ${styles.pageFlipped} ${styles.pageLeft} ${styles.introLeft}`}>
+  <div ref={ref} style={SHELL_STYLE} className={`${styles.page} ${styles.pageLeft} ${styles.introLeft}`}>
     <div className={styles.lines} />
-    <div className={`${styles.contentLeft} ${styles.contentUnflipped}`}>
+    <div style={CONTENT_STYLE} className={styles.contentLeft}>
       <p className={styles.introPublisher}>Lokpriyanth Press</p>
       <div className={styles.introHRule} />
       <h2 className={styles.introContentsTitle}>Contents</h2>
@@ -106,7 +114,7 @@ const BlankLeft = forwardRef<HTMLDivElement, Record<string, never>>((_props, ref
 ));
 BlankLeft.displayName = 'BlankLeft';
 
-// ─── Covers (NOT rotated) ─────────────────────────────────────────────────────
+// ─── Covers — NOT rotated ─────────────────────────────────────────────────────
 
 const CoverFront = forwardRef<HTMLDivElement, Record<string, never>>((_props, ref) => (
   <div ref={ref} className={styles.cover}>
@@ -144,7 +152,6 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
   const prevIndex = useRef(currentIndex);
   const { pageW, pageH } = useBookSize();
 
-  // Inject --pw so CSS can use calc(var(--pw) * ratio) for fluid sizing
   const wrapStyle = { '--pw': `${pageW}px` } as React.CSSProperties;
 
   useEffect(() => {
@@ -161,7 +168,7 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
     }
   }, [animals.length, onPageChange]);
 
-  // Stable page list — isLeft never changes so safe to memoize
+  // Stable page list — computed once, never re-rendered
   const animalPages = useRef(
     animals.map((animal, i) => {
       const globalPos = ANIMAL_OFFSET + i;

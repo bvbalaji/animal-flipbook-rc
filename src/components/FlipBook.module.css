@@ -44,30 +44,16 @@
 .pageRight { border-radius: 0 14px 14px 0; }
 .pageLeft  { border-radius: 14px 0 0 14px; }
 
-/* ── Rotate the page shell 180° ───────────────────────────────────────────── */
-/* The page physically flips upside-down. The spine (on right pages) is now
-   at the bottom-right of the div, which after rotation appears at the
-   top-left — i.e. the inner binding edge. Correct.                           */
-.pageFlipped {
-  transform: rotate(180deg);
-}
-
-/* ── Counter-rotate content so it reads right-way up ─────────────────────── */
-/* The content wrapper is also rotated 180°. Parent + child both at 180° =
-   360° net = perfectly upright text/images for the reader.                   */
-.contentUnflipped {
-  transform: rotate(180deg);
-}
-
-/* ── Spine — right pages only ─────────────────────────────────────────────── */
-/* After the page shell rotates 180°, "right: 0" becomes the inner edge.
-   We place the spine on the right edge of the div so it ends up on the
-   correct binding side after rotation.                                       */
+/* ── Spine — sits at left:0 on the div ────────────────────────────────────── */
+/* The page shell is rotated 180° via inline style in JSX (not a CSS class,   */
+/* so it's applied at initial render with no flash).                           */
+/* left:0 on the div = after 180° rotation = the RIGHT edge of the rendered   */
+/* page = the inner binding seam in the center of the open book. Correct.     */
 .spine {
   position: absolute;
-  right: 0; top: 0; bottom: 0;
+  left: 0; top: 0; bottom: 0;
   width: calc(var(--pw) * 0.073);
-  background: linear-gradient(to left, #7a5420, #c08030, #a86e28, #7a5420);
+  background: linear-gradient(to right, #7a5420, #c08030, #a86e28, #7a5420);
   z-index: 2;
 }
 
@@ -86,7 +72,7 @@
   z-index: 0;
 }
 
-/* ── Content — right pages (spine on right after rotation → pad right) ──── */
+/* ── Content — right pages (spine at left:0 → indent left side) ──────────── */
 .content {
   position: absolute;
   inset: 0;
@@ -94,11 +80,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* right padding clears the spine; left is even */
   padding: calc(var(--pw) * 0.046)
-           calc(var(--pw) * 0.046 + var(--pw) * 0.073)
+           calc(var(--pw) * 0.046)
            calc(var(--pw) * 0.03)
-           calc(var(--pw) * 0.046);
+           calc(var(--pw) * 0.046 + var(--pw) * 0.073); /* clears the spine */
   box-sizing: border-box;
   overflow: hidden;
 }
