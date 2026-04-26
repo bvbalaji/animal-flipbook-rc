@@ -1,3 +1,9 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   --pw is injected on .bookWrap from JS (useBookSize).
+   All sizing uses calc(var(--pw) * ratio) so the layout scales with the
+   actual rendered page width, not the viewport — works on any phone.
+───────────────────────────────────────────────────────────────────────────── */
+
 /* ── Book wrapper ─────────────────────────────────────────────────────────── */
 .bookWrap {
   display: flex;
@@ -5,13 +11,15 @@
   align-items: center;
   margin-bottom: 1.2rem;
   width: 100%;
+  overflow-x: hidden;
 }
 
 .flipBook {
-  filter: drop-shadow(4px 6px 24px rgba(0,0,0,0.30)) drop-shadow(1px 2px 6px rgba(0,0,0,0.15));
+  filter: drop-shadow(4px 6px 24px rgba(0,0,0,0.30))
+          drop-shadow(1px 2px 6px rgba(0,0,0,0.15));
 }
 
-/* ── Blank left page (back of front cover) ────────────────────────────────── */
+/* ── Blank left page ──────────────────────────────────────────────────────── */
 .blankLeft {
   width: 100%;
   height: 100%;
@@ -21,7 +29,7 @@
   box-sizing: border-box;
 }
 
-/* ── Page base ────────────────────────────────────────────────────────────── */
+/* ── Page shell ───────────────────────────────────────────────────────────── */
 .page {
   position: relative;
   background: #fef9f0;
@@ -29,116 +37,138 @@
   overflow: hidden;
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
   box-sizing: border-box;
   user-select: none;
 }
 
-/* Right pages: rounded on the outer (right) edge */
 .pageRight { border-radius: 0 14px 14px 0; }
-
-/* Left pages: rounded on the outer (left) edge, NO spine bar */
 .pageLeft  { border-radius: 14px 0 0 14px; }
 
-/* ── Spine — only on right-hand pages ─────────────────────────────────────── */
+/* ── Rotate the page shell 180° ───────────────────────────────────────────── */
+/* The page physically flips upside-down. The spine (on right pages) is now
+   at the bottom-right of the div, which after rotation appears at the
+   top-left — i.e. the inner binding edge. Correct.                           */
+.pageFlipped {
+  transform: rotate(180deg);
+}
+
+/* ── Counter-rotate content so it reads right-way up ─────────────────────── */
+/* The content wrapper is also rotated 180°. Parent + child both at 180° =
+   360° net = perfectly upright text/images for the reader.                   */
+.contentUnflipped {
+  transform: rotate(180deg);
+}
+
+/* ── Spine — right pages only ─────────────────────────────────────────────── */
+/* After the page shell rotates 180°, "right: 0" becomes the inner edge.
+   We place the spine on the right edge of the div so it ends up on the
+   correct binding side after rotation.                                       */
 .spine {
   position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 22px;
-  background: linear-gradient(to right, #7a5420, #c08030, #a86e28, #7a5420);
+  right: 0; top: 0; bottom: 0;
+  width: calc(var(--pw) * 0.073);
+  background: linear-gradient(to left, #7a5420, #c08030, #a86e28, #7a5420);
   z-index: 2;
-  flex-shrink: 0;
 }
 
 /* ── Notebook lines ───────────────────────────────────────────────────────── */
 .lines {
   position: absolute;
-  left: 0; right: 0; top: 0; bottom: 0;
+  inset: 0;
   background-image: repeating-linear-gradient(
     to bottom,
     transparent,
-    transparent 33px,
-    rgba(160, 120, 60, 0.13) 33px,
-    rgba(160, 120, 60, 0.13) 34px
+    transparent calc(var(--pw) * 0.11),
+    rgba(160,120,60,0.13) calc(var(--pw) * 0.11),
+    rgba(160,120,60,0.13) calc(var(--pw) * 0.115)
   );
   pointer-events: none;
   z-index: 0;
 }
 
-/* ── Content — right pages: indent past the spine ─────────────────────────── */
+/* ── Content — right pages (spine on right after rotation → pad right) ──── */
 .content {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 14px 14px 10px 34px;
-  height: 100%;
+  /* right padding clears the spine; left is even */
+  padding: calc(var(--pw) * 0.046)
+           calc(var(--pw) * 0.046 + var(--pw) * 0.073)
+           calc(var(--pw) * 0.03)
+           calc(var(--pw) * 0.046);
   box-sizing: border-box;
+  overflow: hidden;
 }
 
-/* ── Content — left pages: even padding, no spine to clear ────────────────── */
+/* ── Content — left pages (no spine, even padding) ───────────────────────── */
 .contentLeft {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 14px 14px 10px 14px;
-  height: 100%;
+  padding: calc(var(--pw) * 0.046);
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* ── Badge ────────────────────────────────────────────────────────────────── */
 .badge {
   font-family: 'Nunito', sans-serif;
-  font-size: 9.5px;
+  font-size: calc(var(--pw) * 0.034);
   font-weight: 800;
   letter-spacing: 0.8px;
   text-transform: uppercase;
-  padding: 4px 14px;
+  padding: calc(var(--pw) * 0.013) calc(var(--pw) * 0.048);
   border-radius: 30px;
-  margin-bottom: 8px;
+  margin-bottom: calc(var(--pw) * 0.026);
   margin-top: 2px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
-
 .badgeDomestic { background: #fde68a; color: #78350f; }
 .badgeWild     { background: #bbf7d0; color: #065f46; }
 
 /* ── Emoji ────────────────────────────────────────────────────────────────── */
 .emoji {
-  font-size: 72px;
+  font-size: calc(var(--pw) * 0.26);
   line-height: 1;
-  margin: 4px 0 10px;
+  margin: calc(var(--pw) * 0.01) 0 calc(var(--pw) * 0.026);
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
   animation: bob 3s ease-in-out infinite;
+  flex-shrink: 0;
 }
-
 @keyframes bob {
   0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-6px); }
+  50%       { transform: translateY(calc(var(--pw) * -0.02)); }
 }
 
 /* ── Name ─────────────────────────────────────────────────────────────────── */
 .name {
   font-family: 'Fredoka One', cursive;
-  font-size: 26px;
+  font-size: calc(var(--pw) * 0.088);
   font-weight: 400;
   color: #2d1a04;
-  margin: 0 0 6px;
+  margin: 0 0 calc(var(--pw) * 0.02);
   text-align: center;
+  line-height: 1.1;
+  flex-shrink: 0;
 }
 
 /* ── Description ──────────────────────────────────────────────────────────── */
 .desc {
   font-family: 'Nunito', sans-serif;
-  font-size: 12px;
+  font-size: calc(var(--pw) * 0.042);
   font-weight: 600;
   color: #7a5220;
-  line-height: 1.55;
+  line-height: 1.5;
   text-align: center;
   margin: 0;
+  overflow: hidden;
 }
 
 /* ── Fun fact box ─────────────────────────────────────────────────────────── */
@@ -147,93 +177,91 @@
   width: 100%;
   background: linear-gradient(to bottom, rgba(255,246,196,0.94), rgba(255,232,140,0.88));
   border: 1.4px dashed #c89820;
-  border-radius: 10px;
-  padding: 9px 11px;
+  border-radius: calc(var(--pw) * 0.033);
+  padding: calc(var(--pw) * 0.03) calc(var(--pw) * 0.037);
   font-family: 'Nunito', sans-serif;
-  font-size: 11.5px;
+  font-size: calc(var(--pw) * 0.038);
   color: #5c3308;
-  line-height: 1.55;
+  line-height: 1.5;
   text-align: center;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
-
-.factLabel {
-  font-weight: 800;
-  color: #92400e;
-  display: block;
-  margin-bottom: 2px;
-}
-
-.factText { font-weight: 600; }
+.factLabel { font-weight: 800; color: #92400e; display: block; margin-bottom: 2px; }
+.factText  { font-weight: 600; }
 
 /* ── Page number ──────────────────────────────────────────────────────────── */
 .pageNum {
   font-family: 'Nunito', sans-serif;
-  font-size: 10.5px;
+  font-size: calc(var(--pw) * 0.034);
   font-weight: 700;
   color: #b8945a;
   letter-spacing: 0.4px;
-  margin-top: 8px;
+  margin-top: calc(var(--pw) * 0.02);
   text-align: center;
+  flex-shrink: 0;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
    INTRODUCTION PAGES
 ══════════════════════════════════════════════════════════════════════════════ */
 
-/* IntroRight — right-hand page */
 .introRight { background: linear-gradient(160deg, #fef9f0, #faecd8); }
+.introLeft  { background: linear-gradient(160deg, #fdf4e4, #f8e8c8); }
 
 .introBand {
   width: 100%;
   background: linear-gradient(90deg, #8b5e1a, #c8861e, #8b5e1a);
-  border-radius: 6px;
-  padding: 5px 0;
+  border-radius: calc(var(--pw) * 0.02);
+  padding: calc(var(--pw) * 0.016) 0;
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: calc(var(--pw) * 0.033);
   font-family: 'Nunito', sans-serif;
-  font-size: 9px;
+  font-size: calc(var(--pw) * 0.03);
   font-weight: 800;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: #fff8e8;
+  flex-shrink: 0;
 }
 
 .introEmojiCluster {
-  font-size: 22px;
+  font-size: calc(var(--pw) * 0.077);
   line-height: 1.5;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   text-align: center;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
-  margin-bottom: 6px;
+  margin-bottom: calc(var(--pw) * 0.02);
+  flex-shrink: 0;
 }
 
 .introTitle {
   font-family: 'Fredoka One', cursive;
-  font-size: 30px;
+  font-size: calc(var(--pw) * 0.1);
   font-weight: 400;
   color: #2d1a04;
-  margin: 0 0 10px;
+  margin: 0 0 calc(var(--pw) * 0.033);
   text-align: center;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  flex-shrink: 0;
 }
 
 .introBody {
   font-family: 'Nunito', sans-serif;
-  font-size: 11px;
+  font-size: calc(var(--pw) * 0.038);
   font-weight: 600;
   color: #7a5220;
-  line-height: 1.6;
+  line-height: 1.55;
   text-align: center;
-  margin: 0 0 8px;
+  margin: 0 0 calc(var(--pw) * 0.026);
+  overflow: hidden;
 }
 
 .introDivider {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: calc(var(--pw) * 0.026);
   width: 80%;
-  margin: 6px 0;
+  margin: calc(var(--pw) * 0.02) 0;
+  flex-shrink: 0;
 }
 .introDivider span:first-child,
 .introDivider span:last-child {
@@ -242,80 +270,85 @@
   background: linear-gradient(90deg, transparent, #c8a060, transparent);
   display: block;
 }
-.introDivider span:nth-child(2) { font-size: 12px; }
+.introDivider span:nth-child(2) { font-size: calc(var(--pw) * 0.044); }
 
 .introEdition {
   font-family: 'Nunito', sans-serif;
-  font-size: 9px;
+  font-size: calc(var(--pw) * 0.03);
   font-weight: 700;
   letter-spacing: 1px;
   color: #b8945a;
   text-transform: uppercase;
   margin: 0;
   text-align: center;
+  flex-shrink: 0;
 }
-
-/* IntroLeft — left-hand page */
-.introLeft { background: linear-gradient(160deg, #fdf4e4, #f8e8c8); }
 
 .introPublisher {
   font-family: 'Fredoka One', cursive;
-  font-size: 13px;
+  font-size: calc(var(--pw) * 0.046);
   font-weight: 400;
   color: #8b5e1a;
   letter-spacing: 1px;
-  margin: 0 0 4px;
+  margin: 0 0 calc(var(--pw) * 0.013);
   text-align: center;
+  flex-shrink: 0;
 }
 
 .introHRule {
   width: 70%;
   height: 1.5px;
   background: linear-gradient(90deg, transparent, #c8a060, transparent);
-  margin: 8px 0;
+  margin: calc(var(--pw) * 0.026) 0;
   flex-shrink: 0;
 }
 
 .introContentsTitle {
   font-family: 'Fredoka One', cursive;
-  font-size: 18px;
+  font-size: calc(var(--pw) * 0.062);
   font-weight: 400;
   color: #2d1a04;
-  margin: 0 0 10px;
+  margin: 0 0 calc(var(--pw) * 0.033);
   text-align: center;
+  flex-shrink: 0;
 }
 
 .introAnimalGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4px 6px;
+  gap: calc(var(--pw) * 0.013) calc(var(--pw) * 0.016);
   width: 100%;
-  margin-bottom: 4px;
+  margin-bottom: calc(var(--pw) * 0.013);
+  flex-shrink: 0;
 }
 
 .introAnimalItem {
   font-family: 'Nunito', sans-serif;
-  font-size: 9.5px;
+  font-size: calc(var(--pw) * 0.034);
   font-weight: 700;
   color: #7a5220;
   background: rgba(255,235,160,0.55);
   border-radius: 4px;
-  padding: 3px 4px;
+  padding: calc(var(--pw) * 0.01) calc(var(--pw) * 0.013);
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .introCopyright {
   font-family: 'Nunito', sans-serif;
-  font-size: 9px;
+  font-size: calc(var(--pw) * 0.03);
   font-weight: 700;
   color: #a07840;
   text-align: center;
   letter-spacing: 0.3px;
   margin: 0;
+  flex-shrink: 0;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   COVERS
+   COVERS  (not rotated — untouched)
 ══════════════════════════════════════════════════════════════════════════════ */
 .cover {
   position: relative;
@@ -346,28 +379,29 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 20px;
+  gap: calc(var(--pw) * 0.033);
+  padding: calc(var(--pw) * 0.066);
   text-align: center;
 }
 
 .coverEmoji {
-  font-size: 72px;
+  font-size: calc(var(--pw) * 0.24);
   filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
 }
 
 .coverTitle {
   font-family: 'Fredoka One', cursive;
-  font-size: 32px;
+  font-size: calc(var(--pw) * 0.107);
   font-weight: 400;
   color: #fff8e8;
   text-shadow: 0 2px 8px rgba(0,0,0,0.4);
   margin: 0;
+  line-height: 1.1;
 }
 
 .coverSub {
   font-family: 'Nunito', sans-serif;
-  font-size: 13px;
+  font-size: calc(var(--pw) * 0.043);
   font-weight: 700;
   color: rgba(255,240,200,0.85);
   margin: 0;
@@ -376,7 +410,7 @@
 
 .coverBackText {
   font-family: 'Nunito', sans-serif;
-  font-size: 13px;
+  font-size: calc(var(--pw) * 0.043);
   font-weight: 700;
   color: rgba(255,240,200,0.8);
   text-align: center;
@@ -385,7 +419,7 @@
 
 .coverBackSub {
   font-family: 'Nunito', sans-serif;
-  font-size: 11px;
+  font-size: calc(var(--pw) * 0.037);
   font-weight: 600;
   color: rgba(255,240,200,0.6);
   text-align: center;

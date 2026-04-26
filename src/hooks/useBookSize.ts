@@ -3,47 +3,33 @@ import { useState, useEffect } from 'react';
 interface BookSize {
   pageW: number;
   pageH: number;
-  isMobile: boolean;
 }
 
-// The book shows TWO pages side-by-side, so total width = pageW * 2.
-// We want to fit within the viewport with some padding on each side.
+// Base page dimensions at full desktop size
 const BASE_W = 300;
 const BASE_H = 400;
-const PADDING = 24; // px each side
+// Padding on each side of the full two-page spread
+const SIDE_PAD = 24;
+
+function compute(): BookSize {
+  if (typeof window === 'undefined') return { pageW: BASE_W, pageH: BASE_H };
+
+  const vw = window.innerWidth;
+  // Two pages side-by-side: available width split in two
+  const available = (vw - SIDE_PAD * 2) / 2;
+  // Scale down from BASE_W but never exceed it
+  const pageW = Math.round(Math.min(available, BASE_W));
+  // Maintain aspect ratio
+  const pageH = Math.round((pageW / BASE_W) * BASE_H);
+
+  return { pageW: Math.max(pageW, 120), pageH: Math.max(pageH, 160) };
+}
 
 export function useBookSize(): BookSize {
-  const getSize = (): BookSize => {
-    if (typeof window === 'undefined') {
-      return { pageW: BASE_W, pageH: BASE_H, isMobile: false };
-    }
-
-    const vw = window.innerWidth;
-    const totalAvailable = vw - PADDING * 2;
-
-    // Two pages side-by-side: each page = totalAvailable / 2
-    // But cap at BASE_W so we don't blow up on huge screens
-    const rawPageW = Math.min(Math.floor(totalAvailable / 2), BASE_W);
-
-    // Scale height proportionally
-    const scale   = rawPageW / BASE_W;
-    const rawPageH = Math.floor(BASE_H * scale);
-
-    // Snap to minimum readable size
-    const pageW = Math.max(rawPageW, 120);
-    const pageH = Math.max(rawPageH, 160);
-
-    return {
-      pageW,
-      pageH,
-      isMobile: vw < 700,
-    };
-  };
-
-  const [size, setSize] = useState<BookSize>(getSize);
+  const [size, setSize] = useState<BookSize>(compute);
 
   useEffect(() => {
-    const onResize = () => setSize(getSize());
+    const onResize = () => setSize(compute());
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
