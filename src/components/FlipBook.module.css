@@ -9,7 +9,7 @@
 }
 
 .flipBook {
-  filter: drop-shadow(4px 6px 24px rgba(0,0,0,0.30)) drop-shadow(1px 2px 6px rgba(0,0,0,0.15));
+  box-shadow: 4px 6px 24px rgba(0,0,0,0.30), 1px 2px 6px rgba(0,0,0,0.15);
 }
 
 /* ── Blank left page (back of front cover) ────────────────────────────────── */
