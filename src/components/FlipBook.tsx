@@ -7,17 +7,16 @@ import styles from './FlipBook.module.css';
 const ANIMAL_OFFSET = 3;
 
 // ─── Animal page ──────────────────────────────────────────────────────────────
-// isLeft = true when this page will sit on the left side of the open spread.
-// Left pages are rotated 180° — no spine strip, content reads naturally.
+// No spine bar on the page itself — the spine lives in the center of the
+// open spread (between the two pages), drawn by the .bookWrap wrapper.
 
-interface PageProps { animal: Animal; index: number; total: number; isLeft: boolean; }
+interface PageProps { animal: Animal; index: number; total: number; }
 
 const Page = forwardRef<HTMLDivElement, PageProps>(
-  ({ animal, index, total, isLeft }, ref) => {
+  ({ animal, index, total }, ref) => {
     const wild = animal.type === 'wild';
     return (
-      <div ref={ref} className={`${isLeft ? styles.pageLeft : styles.page} ${wild ? styles.wild : styles.domestic}`}>
-        {!isLeft && <div className={styles.spine} />}
+      <div ref={ref} className={`${styles.page} ${wild ? styles.wild : styles.domestic}`}>
         <div className={styles.lines} />
         <div className={styles.content}>
           <div className={`${styles.badge} ${wild ? styles.badgeWild : styles.badgeDomestic}`}>
@@ -43,7 +42,6 @@ Page.displayName = 'Page';
 const TitleRecto = forwardRef<HTMLDivElement, Record<string, never>>(
   (_props, ref) => (
     <div ref={ref} className={styles.titleRecto}>
-      <div className={styles.spine} />
       <div className={styles.lines} />
       <div className={styles.titleRectoContent}>
         <div className={styles.titleBand}>
@@ -103,7 +101,6 @@ TitleVerso.displayName = 'TitleVerso';
 const CoverFront = forwardRef<HTMLDivElement, Record<string, never>>(
   (_props, ref) => (
     <div ref={ref} className={styles.cover}>
-      <div className={styles.coverSpine} />
       <div className={styles.coverDecorTop} />
       <div className={styles.coverContent}>
         <div className={styles.coverEmoji}>🐾</div>
@@ -141,10 +138,8 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
   const bookRef   = useRef<HTMLFlipBook>(null);
   const prevIndex = useRef(currentIndex);
   const { pageW, pageH } = useBookSize();
+  const [isOpen, setIsOpen] = React.useState(false);
 
-  // --pw on the wrapper div — all page CSS inherits this automatically.
-  // We NEVER pass pageW into the page components themselves, so react-pageflip's
-  // DOM is never touched by React reconciliation after initial mount.
   const wrapStyle = { '--pw': `${pageW}px` } as React.CSSProperties;
 
   useEffect(() => {
@@ -157,33 +152,30 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
   const handleFlip = useCallback(
     (e: { data: number }) => {
       const idx = e.data - ANIMAL_OFFSET;
+      // Book is "open" once we're past the front cover (page 0)
+      setIsOpen(e.data > 0 && e.data < animals.length + ANIMAL_OFFSET + 1);
       if (idx >= 0 && idx < animals.length) onPageChange(idx);
     },
     [animals.length, onPageChange]
   );
 
-  // Memoise the page list so it never changes identity between renders.
-  // react-pageflip requires a stable, non-changing children array.
-  // Global page index: 0=CoverFront, 1=TitleRecto, 2=TitleVerso, 3..N+2=Animals
-  // Even global index = left side of spread, Odd = right side.
+  // Stable child list (no re-renders)
   const pages = useRef(
-    animals.map((animal, i) => {
-      const globalPos = ANIMAL_OFFSET + i; // 3, 4, 5, ...
-      const isLeft = globalPos % 2 === 0;  // even = left page
-      return (
-        <Page
-          key={`${animal.name}-${animal.type}`}
-          animal={animal}
-          index={i}
-          total={animals.length}
-          isLeft={isLeft}
-        />
-      );
-    })
+    animals.map((animal, i) => (
+      <Page
+        key={`${animal.name}-${animal.type}`}
+        animal={animal}
+        index={i}
+        total={animals.length}
+      />
+    ))
   );
 
   return (
-    <div className={styles.bookWrap} style={wrapStyle}>
+    <div
+      className={`${styles.bookWrap} ${isOpen ? styles.bookOpen : styles.bookClosed}`}
+      style={wrapStyle}
+    >
       <HTMLFlipBook
         ref={bookRef}
         width={pageW}
@@ -215,6 +207,10 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
         {pages.current}
         <CoverBack />
       </HTMLFlipBook>
+
+      {/* Center spine — drawn over the book at the seam between the two pages.
+          Visible only when the book is OPEN (past the cover).                  */}
+      <div className={styles.centerSpine} aria-hidden="true" />
     </div>
   );
 };

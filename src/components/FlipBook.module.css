@@ -1,12 +1,10 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   All sizing is relative to --pw (page width in px), injected per-page.
-   This ensures content always fits inside the book regardless of screen size.
-   e.g. on a 171px page: emoji = 171 * 0.28 ≈ 48px  (fits perfectly)
-        on a 300px page: emoji = 300 * 0.28 ≈ 84px  → clamped to 72px
+   All sizing is relative to --pw (page width in px), set on .bookWrap.
 ───────────────────────────────────────────────────────────────────────────── */
 
 /* ── Book wrapper ─────────────────────────────────────────────────────────── */
 .bookWrap {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -18,14 +16,45 @@
   box-shadow: 0 8px 40px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.18);
 }
 
-/* Hide react-pageflip's internal shadow element on the blank left side
-   when the book is fully closed (only the cover is showing).
-   The library injects a .stf__shadow div — suppress it on the left block. */
-.flipBook :global(.stf__block.--left .stf__shadow) {
+/* ── Center spine (between the two open pages) ────────────────────────────── */
+/* Sits at the midpoint of the open spread — that's where the binding shows.   */
+.centerSpine {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  width: calc(var(--pw) * 0.04);
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to right,
+    rgba(0,0,0,0.22) 0%,
+    rgba(80,50,15,0.32) 35%,
+    rgba(120,80,30,0.45) 50%,
+    rgba(80,50,15,0.32) 65%,
+    rgba(0,0,0,0.22) 100%
+  );
+  pointer-events: none;
+  z-index: 5;
+  border-radius: 1px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+/* Show the spine only when the book is open (past the cover) */
+.bookOpen .centerSpine {
+  opacity: 1;
+}
+
+/* ── Suppress react-pageflip's shadow on the closed-book empty side ───────── */
+/* When the book is closed (only cover visible), the library still draws a
+   shadow on the .stf__outerShadow / .stf__innerShadow elements. Hide them
+   when the book is in its closed state.                                       */
+.bookClosed :global(.stf__outerShadow),
+.bookClosed :global(.stf__innerShadow) {
   display: none !important;
 }
 
-/* ── Page base (right-hand pages) ─────────────────────────────────────────── */
+/* ── Page base ────────────────────────────────────────────────────────────── */
+/* No spine bar — content fills the entire page, edge to edge.                 */
 .page {
   position: relative;
   background: #fef9f0;
@@ -38,46 +67,10 @@
   user-select: none;
 }
 
-/* ── Left-hand page: rotate 180° so content reads correctly from the left ── */
-/* No spine strip — the rotation itself is the visual flip.                   */
-.pageLeft {
-  position: relative;
-  background: #fef9f0;
-  border: 1.5px solid #d4a96a;
-  border-radius: 12px 0 0 12px;
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  user-select: none;
-  transform: rotate(180deg);
-}
-
-/* Content on left pages: full width, even padding (no spine offset) */
-.pageLeft .content {
-  left: 0;
-  padding: calc(var(--pw) * 0.045);
-}
-
-/* Lines on left pages: full width */
-.pageLeft .lines {
-  left: 0;
-}
-
-/* ── Spine — only on right-hand pages ─────────────────────────────────────── */
-.spine {
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: calc(var(--pw) * 0.072);
-  background: linear-gradient(to right, #7a5420, #c08030, #a86e28, #7a5420);
-  z-index: 2;
-}
-
 /* ── Notebook lines ───────────────────────────────────────────────────────── */
 .lines {
   position: absolute;
-  left: calc(var(--pw) * 0.072);
-  right: 0; top: 0; bottom: 0;
+  inset: 0;
   background-image: repeating-linear-gradient(
     to bottom,
     transparent,
@@ -89,19 +82,15 @@
   z-index: 0;
 }
 
-/* ── Content layer — right pages (after spine) ────────────────────────────── */
+/* ── Content layer ────────────────────────────────────────────────────────── */
 .content {
   position: absolute;
-  left: calc(var(--pw) * 0.072);
-  right: 0; top: 0; bottom: 0;
+  inset: 0;
   z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: calc(var(--pw) * 0.045)
-           calc(var(--pw) * 0.045)
-           calc(var(--pw) * 0.03)
-           calc(var(--pw) * 0.045);
+  padding: calc(var(--pw) * 0.045);
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -157,7 +146,6 @@
   line-height: 1.4;
   text-align: center;
   margin: 0;
-  /* allow description to shrink if needed */
   overflow: hidden;
 }
 
@@ -213,8 +201,7 @@
 
 .titleRectoContent {
   position: absolute;
-  left: calc(var(--pw) * 0.072);
-  right: 0; top: 0; bottom: 0;
+  inset: 0;
   z-index: 3;
   display: flex;
   flex-direction: column;
@@ -307,7 +294,6 @@
   overflow: hidden;
   box-sizing: border-box;
   user-select: none;
-  transform: rotate(180deg);
 }
 
 .titleVersoContent {
@@ -386,11 +372,6 @@
   text-overflow: ellipsis;
 }
 
-/* titleVerso has no spine — lines fill full width */
-.titleVerso .lines {
-  left: 0;
-}
-
 .versoCopyright {
   margin-top: auto;
   text-align: center;
@@ -416,7 +397,7 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(135deg, #8b5e1a 0%, #c8861e 40%, #a06820 70%, #7a4e14 100%);
-  border-radius: 0 12px 12px 0;
+  border-radius: 12px;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -425,14 +406,6 @@
 }
 .coverBack {
   background: linear-gradient(135deg, #7a4e14, #a06820, #8b5e1a);
-  border-radius: 12px 0 0 12px;
-  transform: rotate(180deg);
-}
-.coverSpine {
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: calc(var(--pw) * 0.08);
-  background: linear-gradient(to right, rgba(0,0,0,0.35), rgba(0,0,0,0.1), transparent);
 }
 .coverDecorTop {
   position: absolute;
