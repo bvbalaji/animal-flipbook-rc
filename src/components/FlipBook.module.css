@@ -26,7 +26,6 @@
   position: relative;
   background: #fef9f0;
   border: 1.5px solid #d4a96a;
-  border-radius: 0 14px 14px 0;
   overflow: hidden;
   width: 100%;
   height: 100%;
@@ -36,7 +35,13 @@
   user-select: none;
 }
 
-/* ── Spine ────────────────────────────────────────────────────────────────── */
+/* Right pages: rounded on the outer (right) edge */
+.pageRight { border-radius: 0 14px 14px 0; }
+
+/* Left pages: rounded on the outer (left) edge, NO spine bar */
+.pageLeft  { border-radius: 14px 0 0 14px; }
+
+/* ── Spine — only on right-hand pages ─────────────────────────────────────── */
 .spine {
   position: absolute;
   left: 0; top: 0; bottom: 0;
@@ -49,7 +54,7 @@
 /* ── Notebook lines ───────────────────────────────────────────────────────── */
 .lines {
   position: absolute;
-  left: 22px; right: 0; top: 0; bottom: 0;
+  left: 0; right: 0; top: 0; bottom: 0;
   background-image: repeating-linear-gradient(
     to bottom,
     transparent,
@@ -61,7 +66,7 @@
   z-index: 0;
 }
 
-/* ── Content layer ────────────────────────────────────────────────────────── */
+/* ── Content — right pages: indent past the spine ─────────────────────────── */
 .content {
   position: relative;
   z-index: 3;
@@ -69,6 +74,18 @@
   flex-direction: column;
   align-items: center;
   padding: 14px 14px 10px 34px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Content — left pages: even padding, no spine to clear ────────────────── */
+.contentLeft {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 14px 10px 14px;
   height: 100%;
   box-sizing: border-box;
 }
@@ -121,7 +138,7 @@
   color: #7a5220;
   line-height: 1.55;
   text-align: center;
-  margin: 0 0 0;
+  margin: 0;
 }
 
 /* ── Fun fact box ─────────────────────────────────────────────────────────── */
@@ -147,9 +164,7 @@
   margin-bottom: 2px;
 }
 
-.factText {
-  font-weight: 600;
-}
+.factText { font-weight: 600; }
 
 /* ── Page number ──────────────────────────────────────────────────────────── */
 .pageNum {
@@ -162,7 +177,146 @@
   text-align: center;
 }
 
-/* ── Covers ───────────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════════
+   INTRODUCTION PAGES
+══════════════════════════════════════════════════════════════════════════════ */
+
+/* IntroRight — right-hand page */
+.introRight { background: linear-gradient(160deg, #fef9f0, #faecd8); }
+
+.introBand {
+  width: 100%;
+  background: linear-gradient(90deg, #8b5e1a, #c8861e, #8b5e1a);
+  border-radius: 6px;
+  padding: 5px 0;
+  text-align: center;
+  margin-bottom: 10px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #fff8e8;
+}
+
+.introEmojiCluster {
+  font-size: 22px;
+  line-height: 1.5;
+  letter-spacing: 3px;
+  text-align: center;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+  margin-bottom: 6px;
+}
+
+.introTitle {
+  font-family: 'Fredoka One', cursive;
+  font-size: 30px;
+  font-weight: 400;
+  color: #2d1a04;
+  margin: 0 0 10px;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.introBody {
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #7a5220;
+  line-height: 1.6;
+  text-align: center;
+  margin: 0 0 8px;
+}
+
+.introDivider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 80%;
+  margin: 6px 0;
+}
+.introDivider span:first-child,
+.introDivider span:last-child {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c8a060, transparent);
+  display: block;
+}
+.introDivider span:nth-child(2) { font-size: 12px; }
+
+.introEdition {
+  font-family: 'Nunito', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #b8945a;
+  text-transform: uppercase;
+  margin: 0;
+  text-align: center;
+}
+
+/* IntroLeft — left-hand page */
+.introLeft { background: linear-gradient(160deg, #fdf4e4, #f8e8c8); }
+
+.introPublisher {
+  font-family: 'Fredoka One', cursive;
+  font-size: 13px;
+  font-weight: 400;
+  color: #8b5e1a;
+  letter-spacing: 1px;
+  margin: 0 0 4px;
+  text-align: center;
+}
+
+.introHRule {
+  width: 70%;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, #c8a060, transparent);
+  margin: 8px 0;
+  flex-shrink: 0;
+}
+
+.introContentsTitle {
+  font-family: 'Fredoka One', cursive;
+  font-size: 18px;
+  font-weight: 400;
+  color: #2d1a04;
+  margin: 0 0 10px;
+  text-align: center;
+}
+
+.introAnimalGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px 6px;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.introAnimalItem {
+  font-family: 'Nunito', sans-serif;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #7a5220;
+  background: rgba(255,235,160,0.55);
+  border-radius: 4px;
+  padding: 3px 4px;
+  text-align: center;
+}
+
+.introCopyright {
+  font-family: 'Nunito', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  color: #a07840;
+  text-align: center;
+  letter-spacing: 0.3px;
+  margin: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   COVERS
+══════════════════════════════════════════════════════════════════════════════ */
 .cover {
   position: relative;
   width: 100%;
