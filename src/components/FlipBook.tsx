@@ -3,7 +3,14 @@ import HTMLFlipBook from 'react-pageflip';
 import { Animal } from '../types/animal';
 import styles from './FlipBook.module.css';
 
-// ─── Single page ──────────────────────────────────────────────────────────────
+// Page layout (0-indexed) in landscape/spread mode:
+//   0 = CoverFront   (right side, hard cover)
+//   1 = BlankLeft    (left side of first spread — shows back of cover)
+//   2..N+1 = Animal pages
+//   N+2 = CoverBack  (left side, hard cover)
+const ANIMAL_OFFSET = 2;
+
+// ─── Animal page ──────────────────────────────────────────────────────────────
 
 interface PageProps {
   animal: Animal;
@@ -35,7 +42,14 @@ const Page = forwardRef<HTMLDivElement, PageProps>(({ animal, index, total }, re
 });
 Page.displayName = 'Page';
 
-// ─── Cover pages ──────────────────────────────────────────────────────────────
+// ─── Blank left page (back of front cover, shown on first open) ───────────────
+
+const BlankLeft = forwardRef<HTMLDivElement, Record<string, never>>((_props, ref) => (
+  <div ref={ref} className={styles.blankLeft} data-density="hard" />
+));
+BlankLeft.displayName = 'BlankLeft';
+
+// ─── Covers ───────────────────────────────────────────────────────────────────
 
 const CoverFront = forwardRef<HTMLDivElement, Record<string, never>>((_props, ref) => (
   <div ref={ref} className={styles.cover}>
@@ -52,7 +66,9 @@ CoverFront.displayName = 'CoverFront';
 const CoverBack = forwardRef<HTMLDivElement, Record<string, never>>((_props, ref) => (
   <div ref={ref} className={`${styles.cover} ${styles.coverBack}`}>
     <div className={styles.coverContent}>
+      <div className={styles.coverEmoji}>🐾</div>
       <p className={styles.coverBackText}>© Made by Lokpriyanth — 2026</p>
+      <p className={styles.coverBackSub}>Thank you for reading!</p>
     </div>
   </div>
 ));
@@ -67,19 +83,18 @@ interface FlipBookProps {
 }
 
 const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange }) => {
-  // Typed directly as HTMLFlipBook so .pageFlip() is visible to TypeScript
-  const bookRef = useRef<HTMLFlipBook>(null);
+  const bookRef   = useRef<HTMLFlipBook>(null);
   const prevIndex = useRef(currentIndex);
 
   useEffect(() => {
     if (currentIndex !== prevIndex.current) {
       prevIndex.current = currentIndex;
-      bookRef.current?.pageFlip().flip(currentIndex + 1); // +1 for cover
+      bookRef.current?.pageFlip().flip(currentIndex + ANIMAL_OFFSET);
     }
   }, [currentIndex]);
 
   const handleFlip = useCallback((e: { data: number }) => {
-    const animalIndex = e.data - 1;
+    const animalIndex = e.data - ANIMAL_OFFSET;
     if (animalIndex >= 0 && animalIndex < animals.length) {
       onPageChange(animalIndex);
     }
@@ -97,11 +112,11 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
         minHeight={400}
         maxHeight={400}
         drawShadow
-        flippingTime={700}
-        usePortrait
+        flippingTime={800}
+        usePortrait={false}
         startZIndex={0}
         autoSize={false}
-        maxShadowOpacity={0.5}
+        maxShadowOpacity={0.6}
         showCover
         mobileScrollSupport={false}
         clickEventForward
@@ -112,8 +127,14 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
         onFlip={handleFlip}
         className={styles.flipBook}
       >
+        {/* Hard front cover — right side */}
         <CoverFront />
 
+        {/* Blank left page — first thing you see when you open the cover.
+            data-density="hard" stops it curling like a soft page. */}
+        <BlankLeft />
+
+        {/* Animal pages */}
         {animals.map((animal, i) => (
           <Page
             key={`${animal.name}-${animal.type}`}
@@ -123,6 +144,7 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
           />
         ))}
 
+        {/* Hard back cover — left side */}
         <CoverBack />
       </HTMLFlipBook>
     </div>
