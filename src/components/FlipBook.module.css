@@ -50,320 +50,393 @@
 }
 .bookOpen .centerSpine { opacity: 1; }
 
-/* ── Page base ────────────────────────────────────────────────────────────── */
-/* No spine bar — content fills the entire page, edge to edge.                 */
+/* ══════════════════════════════════════════════════════════════════════════════
+   INNER PAGES — HEY ZINE EDITORIAL STYLE
+   Clean white background, bold colour header block, crisp typography,
+   minimal borders. No textures, no notebook lines.
+══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Page shell ───────────────────────────────────────────────────────────── */
 .page {
   position: relative;
-  background: #fef9f0;
-  border: 1.5px solid #d4a96a;
-  border-radius: 0 12px 12px 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0 4px 4px 0;
   overflow: hidden;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
   user-select: none;
+  display: flex;
+  flex-direction: column;
 }
 
-/* ── Notebook lines ───────────────────────────────────────────────────────── */
-.lines {
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent,
-    transparent calc(var(--pw) * 0.11),
-    rgba(160,120,60,0.13) calc(var(--pw) * 0.11),
-    rgba(160,120,60,0.13) calc(var(--pw) * 0.114)
-  );
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* ── Content layer ────────────────────────────────────────────────────────── */
-.content {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
+/* ── Header block (coloured, full-bleed top) ──────────────────────────────── */
+.pageHeader {
+  flex-shrink: 0;
+  background: var(--hue-bg, #1a1a2e);
+  height: calc(var(--pw) * 0.52);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: calc(var(--pw) * 0.045);
+  justify-content: center;
+  gap: calc(var(--pw) * 0.02);
+  padding: calc(var(--pw) * 0.04) calc(var(--pw) * 0.05);
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle radial glow behind the emoji */
+.pageHeader::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 60%, rgba(255,255,255,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Category pill */
+.catPill {
+  font-family: 'Nunito', sans-serif;
+  font-size: calc(var(--pw) * 0.034);
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--hue-text, #111);
+  background: var(--accent, #f59e0b);
+  border-radius: 999px;
+  padding: calc(var(--pw) * 0.01) calc(var(--pw) * 0.055);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Giant emoji */
+.pageEmoji {
+  font-size: calc(var(--pw) * 0.28);
+  line-height: 1;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));
+  animation: floatUp 3.2s ease-in-out infinite;
+}
+
+@keyframes floatUp {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(calc(var(--pw) * -0.022)); }
+}
+
+/* ── Body ─────────────────────────────────────────────────────────────────── */
+.pageBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--pw) * 0.05) calc(var(--pw) * 0.06) 0;
   box-sizing: border-box;
   overflow: hidden;
 }
 
-/* ── Badge ────────────────────────────────────────────────────────────────── */
-.badge {
-  font-family: 'Nunito', sans-serif;
-  font-size: calc(var(--pw) * 0.034);
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  padding: calc(var(--pw) * 0.012) calc(var(--pw) * 0.048);
-  border-radius: 30px;
-  margin-bottom: calc(var(--pw) * 0.025);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.badgeDomestic { background: #fde68a; color: #78350f; }
-.badgeWild     { background: #bbf7d0; color: #065f46; }
-
-/* ── Emoji ────────────────────────────────────────────────────────────────── */
-.emoji {
-  font-size: calc(var(--pw) * 0.27);
-  line-height: 1;
-  margin: calc(var(--pw) * 0.01) 0 calc(var(--pw) * 0.025);
-  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
-  animation: bob 3s ease-in-out infinite;
-  flex-shrink: 0;
-}
-@keyframes bob {
-  0%,100% { transform: translateY(0); }
-  50%     { transform: translateY(calc(var(--pw) * -0.018)); }
-}
-
-/* ── Name ─────────────────────────────────────────────────────────────────── */
-.name {
+/* Animal name */
+.pageName {
   font-family: 'Fredoka One', cursive;
-  font-size: calc(var(--pw) * 0.088);
+  font-size: calc(var(--pw) * 0.115);
   font-weight: 400;
-  color: #2d1a04;
-  margin: 0 0 calc(var(--pw) * 0.018);
-  text-align: center;
-  line-height: 1.1;
+  color: #111827;
+  margin: 0 0 calc(var(--pw) * 0.02);
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+/* Thin accent rule under the name */
+.pageRule {
+  width: calc(var(--pw) * 0.12);
+  height: 3px;
+  background: var(--accent, #f59e0b);
+  border-radius: 2px;
+  margin-bottom: calc(var(--pw) * 0.028);
   flex-shrink: 0;
 }
 
-/* ── Description ──────────────────────────────────────────────────────────── */
-.desc {
+/* Description */
+.pageDesc {
   font-family: 'Nunito', sans-serif;
-  font-size: calc(var(--pw) * 0.042);
+  font-size: calc(var(--pw) * 0.044);
   font-weight: 600;
-  color: #7a5220;
-  line-height: 1.4;
-  text-align: center;
+  color: #374151;
+  line-height: 1.5;
   margin: 0;
   overflow: hidden;
 }
 
-/* ── Fun fact box ─────────────────────────────────────────────────────────── */
-.fact {
+/* ── Fun fact card ─────────────────────────────────────────────────────────── */
+.pageFact {
   margin-top: auto;
-  width: 100%;
-  background: linear-gradient(to bottom, rgba(255,246,196,0.94), rgba(255,232,140,0.88));
-  border: 1.2px dashed #c89820;
-  border-radius: calc(var(--pw) * 0.025);
-  padding: calc(var(--pw) * 0.028) calc(var(--pw) * 0.035);
-  font-family: 'Nunito', sans-serif;
-  font-size: calc(var(--pw) * 0.038);
-  color: #5c3308;
-  line-height: 1.4;
-  text-align: center;
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--pw) * 0.03);
+  background: var(--hue-light, #fef3c7);
+  border-left: calc(var(--pw) * 0.018) solid var(--accent, #f59e0b);
+  border-radius: 0 calc(var(--pw) * 0.02) calc(var(--pw) * 0.02) 0;
+  padding: calc(var(--pw) * 0.032) calc(var(--pw) * 0.04);
   box-sizing: border-box;
   flex-shrink: 0;
 }
-.factLabel {
-  font-weight: 800;
-  color: #92400e;
-  display: block;
-  margin-bottom: calc(var(--pw) * 0.01);
-}
-.factText { font-weight: 600; }
 
-/* ── Page number ──────────────────────────────────────────────────────────── */
-.pageNum {
+.pageFactIcon {
+  font-size: calc(var(--pw) * 0.055);
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.pageFactLabel {
+  display: block;
   font-family: 'Nunito', sans-serif;
   font-size: calc(var(--pw) * 0.034);
-  font-weight: 700;
-  color: #b8945a;
-  margin-top: calc(var(--pw) * 0.018);
-  text-align: center;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--hue-bg, #78350f);
+  margin-bottom: calc(var(--pw) * 0.008);
+}
+
+.pageFactText {
+  display: block;
+  font-family: 'Nunito', sans-serif;
+  font-size: calc(var(--pw) * 0.038);
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.4;
+}
+
+/* ── Footer bar ───────────────────────────────────────────────────────────── */
+.pageFooter {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--pw) * 0.022) calc(var(--pw) * 0.06);
+  border-top: 1px solid #f3f4f6;
+  box-sizing: border-box;
+}
+
+.pageFooterBrand {
+  font-family: 'Nunito', sans-serif;
+  font-size: calc(var(--pw) * 0.03);
+  font-weight: 700;
+  color: #9ca3af;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.pageFooterNum {
+  font-family: 'Nunito', sans-serif;
+  font-size: calc(var(--pw) * 0.032);
+  font-weight: 700;
+  color: #d1d5db;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   TITLE PAGE — RECTO
+   TITLE PAGE — RECTO (right-hand, Hey Zine editorial)
 ══════════════════════════════════════════════════════════════════════════════ */
 .titleRecto {
   position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(160deg, #fef9f0, #faecd8);
-  border: 1.5px solid #d4a96a;
-  border-radius: 0 12px 12px 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0 4px 4px 0;
   overflow: hidden;
   box-sizing: border-box;
   user-select: none;
+  display: flex;
+  flex-direction: column;
 }
 
-.titleRectoContent {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
+/* Dark hero fills top ~60% */
+.titleHero {
+  flex: 0 0 60%;
+  background: #111827;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: calc(var(--pw) * 0.04) calc(var(--pw) * 0.05);
+  padding: calc(var(--pw) * 0.06) calc(var(--pw) * 0.06) calc(var(--pw) * 0.04);
   box-sizing: border-box;
   gap: calc(var(--pw) * 0.018);
+  position: relative;
   overflow: hidden;
 }
 
-.titleBand {
-  width: 100%;
-  background: linear-gradient(90deg, #8b5e1a, #c8861e, #8b5e1a);
-  border-radius: 4px;
-  padding: calc(var(--pw) * 0.016) 0;
-  text-align: center;
+.titleHero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(245,158,11,0.15), transparent 60%);
+  pointer-events: none;
 }
-.titleBandText {
+
+.titleHeroEyebrow {
   font-family: 'Nunito', sans-serif;
   font-size: calc(var(--pw) * 0.032);
   font-weight: 800;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: #fff8e8;
-}
-
-.titleEmojiRow {
-  display: flex;
-  gap: calc(var(--pw) * 0.03);
-  font-size: calc(var(--pw) * 0.1);
-  line-height: 1;
-}
-
-.titleHeading {
-  font-family: 'Fredoka One', cursive;
-  font-size: calc(var(--pw) * 0.115);
-  font-weight: 400;
-  color: #2d1a04;
-  text-align: center;
-  line-height: 1.1;
+  color: #f59e0b;
   margin: 0;
 }
 
-.titleSubtitle {
-  font-family: 'Nunito', sans-serif;
-  font-size: calc(var(--pw) * 0.038);
-  font-weight: 600;
-  color: #7a5220;
-  text-align: center;
+.titleHeroEmojis {
+  font-size: calc(var(--pw) * 0.07);
   line-height: 1.4;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+.titleHeroHeading {
+  font-family: 'Fredoka One', cursive;
+  font-size: calc(var(--pw) * 0.16);
+  font-weight: 400;
+  color: #ffffff;
+  text-align: center;
+  line-height: 1.0;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+/* White lower panel */
+.titleLower {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: calc(var(--pw) * 0.05) calc(var(--pw) * 0.07);
+  box-sizing: border-box;
+  gap: calc(var(--pw) * 0.02);
+  border-top: 4px solid #f59e0b;
+}
+
+.titleLowerSub {
+  font-family: 'Nunito', sans-serif;
+  font-size: calc(var(--pw) * 0.044);
+  font-weight: 600;
+  color: #374151;
+  line-height: 1.5;
   margin: 0;
 }
 
-.titleDivider {
+.titleLowerMeta {
   display: flex;
   align-items: center;
-  gap: calc(var(--pw) * 0.025);
-  width: 80%;
-}
-.titleDivider span:first-child,
-.titleDivider span:last-child {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #c8a060, transparent);
-  display: block;
-}
-.titleDivider span:nth-child(2) { font-size: calc(var(--pw) * 0.05); }
-
-.titleEdition {
+  gap: calc(var(--pw) * 0.02);
   font-family: 'Nunito', sans-serif;
-  font-size: calc(var(--pw) * 0.032);
+  font-size: calc(var(--pw) * 0.034);
   font-weight: 700;
-  letter-spacing: 1px;
-  color: #b8945a;
+  color: #9ca3af;
   text-transform: uppercase;
-  margin: 0;
+  letter-spacing: 0.5px;
 }
+
+.titleLowerDot { color: #d1d5db; }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   TITLE PAGE — VERSO
+   TITLE PAGE — VERSO (left-hand, Hey Zine editorial)
 ══════════════════════════════════════════════════════════════════════════════ */
 .titleVerso {
   position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(160deg, #fdf4e4, #f8e8c8);
-  border: 1.5px solid #d4a96a;
-  border-radius: 12px 0 0 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px 0 0 4px;
   overflow: hidden;
   box-sizing: border-box;
   user-select: none;
 }
 
-.titleVersoContent {
+.versoInner {
   position: absolute;
   inset: 0;
-  z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: calc(var(--pw) * 0.06) calc(var(--pw) * 0.055) calc(var(--pw) * 0.05);
+  padding: calc(var(--pw) * 0.07) calc(var(--pw) * 0.07) calc(var(--pw) * 0.05);
   box-sizing: border-box;
   overflow: hidden;
 }
 
-.versoCrest {
-  font-size: calc(var(--pw) * 0.11);
+/* Publisher mark */
+.versoMark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--pw) * 0.01);
+}
+
+.versoMarkEmoji {
+  font-size: calc(var(--pw) * 0.1);
   line-height: 1;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
-  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
-.versoPublisher {
+
+.versoMarkName {
   font-family: 'Fredoka One', cursive;
-  font-size: calc(var(--pw) * 0.046);
+  font-size: calc(var(--pw) * 0.044);
   font-weight: 400;
-  color: #8b5e1a;
-  letter-spacing: 1px;
-  margin: calc(var(--pw) * 0.01) 0 0;
+  color: #374151;
+  letter-spacing: 0.5px;
+}
+
+.versoHRule {
+  width: 100%;
+  height: 1px;
+  background: #e5e7eb;
+  margin: calc(var(--pw) * 0.04) 0;
   flex-shrink: 0;
 }
-.versoDivider {
-  width: 60%;
-  height: 1.5px;
-  background: linear-gradient(90deg, transparent, #c8a060, transparent);
-  margin: calc(var(--pw) * 0.03) 0;
-  flex-shrink: 0;
-}
-.versoTitle {
+
+.versoAboutTitle {
   font-family: 'Fredoka One', cursive;
-  font-size: calc(var(--pw) * 0.056);
+  font-size: calc(var(--pw) * 0.065);
   font-weight: 400;
-  color: #2d1a04;
-  margin: 0 0 calc(var(--pw) * 0.025);
-  text-align: center;
+  color: #111827;
+  margin: 0 0 calc(var(--pw) * 0.02);
+  text-align: left;
+  align-self: flex-start;
   flex-shrink: 0;
 }
-.versoBody {
+
+.versoAboutText {
   font-family: 'Nunito', sans-serif;
   font-size: calc(var(--pw) * 0.037);
   font-weight: 600;
-  color: #6b4c1e;
-  line-height: 1.45;
-  text-align: center;
-  margin: 0 0 calc(var(--pw) * 0.02);
+  color: #6b7280;
+  line-height: 1.55;
+  text-align: left;
+  margin: 0 0 calc(var(--pw) * 0.018);
+  align-self: flex-start;
   overflow: hidden;
 }
 
-.versoAnimalList {
+/* Animal index grid */
+.versoGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: calc(var(--pw) * 0.012) calc(var(--pw) * 0.02);
-  margin: calc(var(--pw) * 0.025) 0;
+  gap: calc(var(--pw) * 0.014) calc(var(--pw) * 0.016);
+  margin: calc(var(--pw) * 0.02) 0;
   width: 100%;
   flex-shrink: 0;
 }
-.versoAnimalList span {
+
+.versoGridItem {
   font-family: 'Nunito', sans-serif;
   font-size: calc(var(--pw) * 0.034);
   font-weight: 700;
-  color: #7a5220;
+  color: #374151;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: calc(var(--pw) * 0.015);
+  padding: calc(var(--pw) * 0.012) calc(var(--pw) * 0.01);
   text-align: center;
-  background: rgba(255,235,160,0.5);
-  border-radius: 4px;
-  padding: calc(var(--pw) * 0.01) calc(var(--pw) * 0.015);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -371,19 +444,16 @@
 
 .versoCopyright {
   margin-top: auto;
+  font-family: 'Nunito', sans-serif;
+  font-size: calc(var(--pw) * 0.03);
+  font-weight: 700;
+  color: #9ca3af;
+  letter-spacing: 0.3px;
   text-align: center;
-  border-top: 1px dashed #c8a060;
+  border-top: 1px solid #e5e7eb;
   padding-top: calc(var(--pw) * 0.025);
   width: 100%;
   flex-shrink: 0;
-}
-.versoCopyright p {
-  font-family: 'Nunito', sans-serif;
-  font-size: calc(var(--pw) * 0.032);
-  font-weight: 700;
-  color: #a07840;
-  margin: 0;
-  letter-spacing: 0.3px;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════

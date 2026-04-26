@@ -6,9 +6,11 @@ import styles from './FlipBook.module.css';
 
 const ANIMAL_OFFSET = 3;
 
-// ─── Animal page ──────────────────────────────────────────────────────────────
-// No spine bar on the page itself — the spine lives in the center of the
-// open spread (between the two pages), drawn by the .bookWrap wrapper.
+// ─── Colour palette per animal type ──────────────────────────────────────────
+const WILD_HUE     = { bg: '#0d3d2e', accent: '#22c55e', light: '#dcfce7', text: '#052e16' };
+const DOMESTIC_HUE = { bg: '#78350f', accent: '#f59e0b', light: '#fef3c7', text: '#451a03' };
+
+// ─── Animal page — Hey Zine editorial style ───────────────────────────────────
 
 interface PageProps extends React.HTMLAttributes<HTMLDivElement> {
   animal: Animal;
@@ -19,21 +21,46 @@ interface PageProps extends React.HTMLAttributes<HTMLDivElement> {
 const Page = forwardRef<HTMLDivElement, PageProps>(
   ({ animal, index, total, ...rest }, ref) => {
     const wild = animal.type === 'wild';
+    const hue  = wild ? WILD_HUE : DOMESTIC_HUE;
     return (
-      <div ref={ref} className={`${styles.page} ${wild ? styles.wild : styles.domestic}`} {...rest}>
-        <div className={styles.lines} />
-        <div className={styles.content}>
-          <div className={`${styles.badge} ${wild ? styles.badgeWild : styles.badgeDomestic}`}>
-            {wild ? '🌿 Wild' : '🏠 Domestic'}
+      <div ref={ref} className={styles.page} {...rest}
+        style={{ '--accent': hue.accent, '--hue-bg': hue.bg, '--hue-light': hue.light, '--hue-text': hue.text } as React.CSSProperties}>
+
+        {/* ── Full-bleed header block ── */}
+        <div className={styles.pageHeader}>
+          {/* Category pill */}
+          <div className={styles.catPill}>
+            {wild ? '🌿 Wild Animal' : '🏠 Domestic'}
           </div>
-          <div className={styles.emoji}>{animal.emoji}</div>
-          <h2 className={styles.name}>{animal.name}</h2>
-          <p className={styles.desc}>{animal.desc}</p>
-          <div className={styles.fact}>
-            <span className={styles.factLabel}>⚡ Fun fact:</span>
-            <span className={styles.factText}> {animal.fact}</span>
+          {/* Giant emoji */}
+          <div className={styles.pageEmoji}>{animal.emoji}</div>
+        </div>
+
+        {/* ── Body ── */}
+        <div className={styles.pageBody}>
+          {/* Name */}
+          <h2 className={styles.pageName}>{animal.name}</h2>
+
+          {/* Thin rule */}
+          <div className={styles.pageRule} />
+
+          {/* Description */}
+          <p className={styles.pageDesc}>{animal.desc}</p>
+
+          {/* Fun fact card */}
+          <div className={styles.pageFact}>
+            <span className={styles.pageFactIcon}>⚡</span>
+            <div>
+              <span className={styles.pageFactLabel}>Fun fact</span>
+              <span className={styles.pageFactText}>{animal.fact}</span>
+            </div>
           </div>
-          <div className={styles.pageNum}>{index + 1} / {total}</div>
+        </div>
+
+        {/* ── Footer ── */}
+        <div className={styles.pageFooter}>
+          <span className={styles.pageFooterBrand}>Animal Flipbook</span>
+          <span className={styles.pageFooterNum}>{index + 1} / {total}</span>
         </div>
       </div>
     );
@@ -41,58 +68,69 @@ const Page = forwardRef<HTMLDivElement, PageProps>(
 );
 Page.displayName = 'Page';
 
-// ─── Title Recto ──────────────────────────────────────────────────────────────
+// ─── Title Recto — Hey Zine style ─────────────────────────────────────────────
 
 const TitleRecto = forwardRef<HTMLDivElement, Record<string, never>>(
   (_props, ref) => (
     <div ref={ref} className={styles.titleRecto}>
-      <div className={styles.lines} />
-      <div className={styles.titleRectoContent}>
-        <div className={styles.titleBand}>
-          <span className={styles.titleBandText}>A Collection of Animals</span>
+      {/* Dark hero block */}
+      <div className={styles.titleHero}>
+        <p className={styles.titleHeroEyebrow}>A Collection of Animals</p>
+        <div className={styles.titleHeroEmojis}>
+          🐕 🦁 🐈 🐘 🦊 🐄 🐺 🐇 🐧
         </div>
-        <div className={styles.titleEmojiRow}><span>🐕</span><span>🦁</span><span>🐈</span></div>
-        <div className={styles.titleEmojiRow}><span>🐘</span><span>🐾</span><span>🦊</span></div>
-        <div className={styles.titleEmojiRow}><span>🐄</span><span>🐺</span><span>🐇</span></div>
-        <h1 className={styles.titleHeading}>Animal<br />Flipbook</h1>
-        <p className={styles.titleSubtitle}>
-          Discover domestic &amp; wild animals<br />from around the world
+        <h1 className={styles.titleHeroHeading}>Animal<br/>Flipbook</h1>
+      </div>
+      {/* White lower block */}
+      <div className={styles.titleLower}>
+        <p className={styles.titleLowerSub}>
+          Discover domestic &amp; wild animals from around the world
         </p>
-        <div className={styles.titleDivider}><span /><span>🌿</span><span /></div>
-        <p className={styles.titleEdition}>First Edition · 2026</p>
+        <div className={styles.titleLowerMeta}>
+          <span>First Edition</span>
+          <span className={styles.titleLowerDot}>·</span>
+          <span>2026</span>
+        </div>
       </div>
     </div>
   )
 );
 TitleRecto.displayName = 'TitleRecto';
 
-// ─── Title Verso ──────────────────────────────────────────────────────────────
+// ─── Title Verso — Hey Zine style ─────────────────────────────────────────────
 
 const TitleVerso = forwardRef<HTMLDivElement, Record<string, never>>(
   (_props, ref) => (
     <div ref={ref} className={styles.titleVerso} data-density="hard">
-      <div className={styles.lines} />
-      <div className={styles.titleVersoContent}>
-        <div className={styles.versoCrest}>🐾</div>
-        <p className={styles.versoPublisher}>Lokpriyanth Press</p>
-        <div className={styles.versoDivider} />
-        <h2 className={styles.versoTitle}>About This Book</h2>
-        <p className={styles.versoBody}>
+      <div className={styles.versoInner}>
+        {/* Publisher mark */}
+        <div className={styles.versoMark}>
+          <span className={styles.versoMarkEmoji}>🐾</span>
+          <span className={styles.versoMarkName}>Lokpriyanth Press</span>
+        </div>
+
+        <div className={styles.versoHRule} />
+
+        <h2 className={styles.versoAboutTitle}>About This Book</h2>
+        <p className={styles.versoAboutText}>
           This flipbook takes you on a journey through the animal kingdom —
-          from faithful domestic companions to magnificent wild creatures.
+          from faithful domestic companions who share our homes, to magnificent
+          wild creatures that roam forests, savannas, and oceans.
         </p>
-        <p className={styles.versoBody}>
-          Each page features a fun fact, a description, and an illustration.
+        <p className={styles.versoAboutText}>
+          Each page features a description, a fun fact, and an illustration.
           Flip through and discover something new!
         </p>
-        <div className={styles.versoAnimalList}>
-          <span>🐕 Dog</span><span>🐈 Cat</span><span>🐄 Cow</span>
-          <span>🐓 Chicken</span><span>🐑 Sheep</span><span>🐇 Rabbit</span>
-          <span>🦁 Lion</span><span>🐘 Elephant</span><span>🦊 Fox</span>
-          <span>🐺 Wolf</span><span>🦒 Giraffe</span><span>🐧 Penguin</span>
+
+        {/* Animal index grid */}
+        <div className={styles.versoGrid}>
+          {['🐕 Dog','🐈 Cat','🐄 Cow','🐓 Chicken','🐑 Sheep','🐇 Rabbit',
+            '🦁 Lion','🐘 Elephant','🦊 Fox','🐺 Wolf','🦒 Giraffe','🐧 Penguin']
+            .map(a => <span key={a} className={styles.versoGridItem}>{a}</span>)}
         </div>
+
         <div className={styles.versoCopyright}>
-          <p>© 2026 Lokpriyanth. All rights reserved.</p>
+          © 2026 Lokpriyanth. All rights reserved.
         </div>
       </div>
     </div>
