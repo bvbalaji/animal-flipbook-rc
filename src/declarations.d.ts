@@ -4,36 +4,25 @@ declare module '*.module.css' {
 }
 
 declare module 'react-pageflip' {
-  import { Component, ReactNode, CSSProperties, Ref } from 'react';
+  import { Component, ReactNode, CSSProperties } from 'react';
 
-  // The imperative API exposed via ref
-  interface PageFlipAPI {
-    flipNext(corner?: 'top' | 'bottom'): void;
-    flipPrev(corner?: 'top' | 'bottom'): void;
-    flip(page: number, corner?: 'top' | 'bottom'): void;
-    getCurrentPageIndex(): number;
-    getPageCount(): number;
-  }
-
-  // All props accepted by HTMLFlipBook
   interface HTMLFlipBookProps {
-    // Required
     width: number;
     height: number;
     children: ReactNode;
-    // Layout
+    className?: string;
+    style?: CSSProperties;
+    startPage?: number;
     size?: 'fixed' | 'stretch';
     minWidth?: number;
     maxWidth?: number;
     minHeight?: number;
     maxHeight?: number;
-    autoSize?: boolean;
-    // Behaviour
-    startPage?: number;
     drawShadow?: boolean;
     flippingTime?: number;
     usePortrait?: boolean;
     startZIndex?: number;
+    autoSize?: boolean;
     maxShadowOpacity?: number;
     showCover?: boolean;
     mobileScrollSupport?: boolean;
@@ -42,22 +31,32 @@ declare module 'react-pageflip' {
     swipeDistance?: number;
     showPageCorners?: boolean;
     disableFlipByClick?: boolean;
-    // Styling
-    className?: string;
-    style?: CSSProperties;
-    // Events
     onFlip?: (e: { data: number }) => void;
     onChangeOrientation?: (e: { data: string }) => void;
     onChangeState?: (e: { data: string }) => void;
     onInit?: (e: { data: number }) => void;
     onUpdate?: (e: { data: number }) => void;
+    ref?: React.Ref<HTMLFlipBookInstance>;
   }
 
-  // The class declaration — merges Component with the pageFlip() instance method
-  // so that refs typed as HTMLFlipBook expose pageFlip()
+  interface HTMLFlipBookInstance {
+    pageFlip(): {
+      flipNext(corner?: 'top' | 'bottom'): void;
+      flipPrev(corner?: 'top' | 'bottom'): void;
+      flip(page: number, corner?: 'top' | 'bottom'): void;
+      getCurrentPageIndex(): number;
+      getPageCount(): number;
+    };
+  }
+
   class HTMLFlipBook extends Component<HTMLFlipBookProps> {
-    pageFlip(): PageFlipAPI;
+    pageFlip(): {
+      flipNext(corner?: 'top' | 'bottom'): void;
+      flipPrev(corner?: 'top' | 'bottom'): void;
+      flip(page: number, corner?: 'top' | 'bottom'): void;
+      getCurrentPageIndex(): number;
+      getPageCount(): number;
+    };
   }
-
   export default HTMLFlipBook;
 }
