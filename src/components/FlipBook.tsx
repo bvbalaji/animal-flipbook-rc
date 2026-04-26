@@ -6,9 +6,7 @@ import styles from './FlipBook.module.css';
 
 const ANIMAL_OFFSET = 3;
 
-// ─── Animal page ──────────────────────────────────────────────────────────────
-// No spine bar on the page itself — the spine lives in the center of the
-// open spread (between the two pages), drawn by the .bookWrap wrapper.
+// ─── Animal page — v13 inner page style ──────────────────────────────────────
 
 interface PageProps extends React.HTMLAttributes<HTMLDivElement> {
   animal: Animal;
@@ -21,10 +19,11 @@ const Page = forwardRef<HTMLDivElement, PageProps>(
     const wild = animal.type === 'wild';
     return (
       <div ref={ref} className={`${styles.page} ${wild ? styles.wild : styles.domestic}`} {...rest}>
+        <div className={styles.spine} />
         <div className={styles.lines} />
         <div className={styles.content}>
           <div className={`${styles.badge} ${wild ? styles.badgeWild : styles.badgeDomestic}`}>
-            {wild ? '🌿 Wild' : '🏠 Domestic'}
+            {wild ? '🌿 Wild Animal' : '🏠 Domestic'}
           </div>
           <div className={styles.emoji}>{animal.emoji}</div>
           <h2 className={styles.name}>{animal.name}</h2>
@@ -41,11 +40,12 @@ const Page = forwardRef<HTMLDivElement, PageProps>(
 );
 Page.displayName = 'Page';
 
-// ─── Title Recto ──────────────────────────────────────────────────────────────
+// ─── Title Recto — v13 style ──────────────────────────────────────────────────
 
 const TitleRecto = forwardRef<HTMLDivElement, Record<string, never>>(
   (_props, ref) => (
     <div ref={ref} className={styles.titleRecto}>
+      <div className={styles.spine} />
       <div className={styles.lines} />
       <div className={styles.titleRectoContent}>
         <div className={styles.titleBand}>
@@ -66,7 +66,7 @@ const TitleRecto = forwardRef<HTMLDivElement, Record<string, never>>(
 );
 TitleRecto.displayName = 'TitleRecto';
 
-// ─── Title Verso ──────────────────────────────────────────────────────────────
+// ─── Title Verso — v13 style ──────────────────────────────────────────────────
 
 const TitleVerso = forwardRef<HTMLDivElement, Record<string, never>>(
   (_props, ref) => (
@@ -79,11 +79,13 @@ const TitleVerso = forwardRef<HTMLDivElement, Record<string, never>>(
         <h2 className={styles.versoTitle}>About This Book</h2>
         <p className={styles.versoBody}>
           This flipbook takes you on a journey through the animal kingdom —
-          from faithful domestic companions to magnificent wild creatures.
+          from faithful domestic companions who share our homes, to magnificent
+          wild creatures that roam forests, savannas, and oceans.
         </p>
         <p className={styles.versoBody}>
           Each page features a fun fact, a description, and an illustration.
-          Flip through and discover something new!
+          Flip through and discover something new about the animals we share
+          our world with.
         </p>
         <div className={styles.versoAnimalList}>
           <span>🐕 Dog</span><span>🐈 Cat</span><span>🐄 Cow</span>
@@ -100,7 +102,7 @@ const TitleVerso = forwardRef<HTMLDivElement, Record<string, never>>(
 );
 TitleVerso.displayName = 'TitleVerso';
 
-// ─── Covers ───────────────────────────────────────────────────────────────────
+// ─── Covers — v21 (unchanged) ─────────────────────────────────────────────────
 
 const CoverFront = forwardRef<HTMLDivElement, Record<string, never>>(
   (_props, ref) => (
@@ -130,7 +132,7 @@ const CoverBack = forwardRef<HTMLDivElement, Record<string, never>>(
 );
 CoverBack.displayName = 'CoverBack';
 
-// ─── FlipBook wrapper ─────────────────────────────────────────────────────────
+// ─── FlipBook wrapper — v21 (unchanged) ───────────────────────────────────────
 
 interface FlipBookProps {
   animals: Animal[];
@@ -156,17 +158,12 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
   const handleFlip = useCallback(
     (e: { data: number }) => {
       const idx = e.data - ANIMAL_OFFSET;
-      // Book is "open" once we're past the front cover (page 0)
       setIsOpen(e.data > 0 && e.data < animals.length + ANIMAL_OFFSET + 1);
       if (idx >= 0 && idx < animals.length) onPageChange(idx);
     },
     [animals.length, onPageChange]
   );
 
-  // Stable child list — left pages get data-density="hard" so the library
-  // doesn't apply a soft curl toward the spine on them.
-  // Global layout: 0=CoverFront 1=TitleRecto 2=TitleVerso 3..=Animals N+3=CoverBack
-  // Even global index sits on LEFT side of the spread.
   const pages = useRef(
     animals.map((animal, i) => {
       const globalPos = ANIMAL_OFFSET + i;
@@ -202,7 +199,7 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
         usePortrait={false}
         startZIndex={0}
         autoSize={false}
-        maxShadowOpacity={0.9}
+        maxShadowOpacity={0.6}
         showCover
         mobileScrollSupport={false}
         clickEventForward
@@ -219,9 +216,6 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
         {pages.current}
         <CoverBack />
       </HTMLFlipBook>
-
-      {/* Center spine — drawn over the book at the seam between the two pages.
-          Visible only when the book is OPEN (past the cover).                  */}
       <div className={styles.centerSpine} aria-hidden="true" />
     </div>
   );
