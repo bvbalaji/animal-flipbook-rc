@@ -10,13 +10,17 @@ const ANIMAL_OFFSET = 3;
 // No spine bar on the page itself — the spine lives in the center of the
 // open spread (between the two pages), drawn by the .bookWrap wrapper.
 
-interface PageProps { animal: Animal; index: number; total: number; }
+interface PageProps extends React.HTMLAttributes<HTMLDivElement> {
+  animal: Animal;
+  index: number;
+  total: number;
+}
 
 const Page = forwardRef<HTMLDivElement, PageProps>(
-  ({ animal, index, total }, ref) => {
+  ({ animal, index, total, ...rest }, ref) => {
     const wild = animal.type === 'wild';
     return (
-      <div ref={ref} className={`${styles.page} ${wild ? styles.wild : styles.domestic}`}>
+      <div ref={ref} className={`${styles.page} ${wild ? styles.wild : styles.domestic}`} {...rest}>
         <div className={styles.lines} />
         <div className={styles.content}>
           <div className={`${styles.badge} ${wild ? styles.badgeWild : styles.badgeDomestic}`}>
@@ -66,7 +70,7 @@ TitleRecto.displayName = 'TitleRecto';
 
 const TitleVerso = forwardRef<HTMLDivElement, Record<string, never>>(
   (_props, ref) => (
-    <div ref={ref} className={styles.titleVerso}>
+    <div ref={ref} className={styles.titleVerso} data-density="hard">
       <div className={styles.lines} />
       <div className={styles.titleVersoContent}>
         <div className={styles.versoCrest}>🐾</div>
@@ -159,16 +163,24 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
     [animals.length, onPageChange]
   );
 
-  // Stable child list (no re-renders)
+  // Stable child list — left pages get data-density="hard" so the library
+  // doesn't apply a soft curl toward the spine on them.
+  // Global layout: 0=CoverFront 1=TitleRecto 2=TitleVerso 3..=Animals N+3=CoverBack
+  // Even global index sits on LEFT side of the spread.
   const pages = useRef(
-    animals.map((animal, i) => (
-      <Page
-        key={`${animal.name}-${animal.type}`}
-        animal={animal}
-        index={i}
-        total={animals.length}
-      />
-    ))
+    animals.map((animal, i) => {
+      const globalPos = ANIMAL_OFFSET + i;
+      const isLeft = globalPos % 2 === 0;
+      return (
+        <Page
+          key={`${animal.name}-${animal.type}`}
+          animal={animal}
+          index={i}
+          total={animals.length}
+          data-density={isLeft ? 'hard' : 'soft'}
+        />
+      );
+    })
   );
 
   return (

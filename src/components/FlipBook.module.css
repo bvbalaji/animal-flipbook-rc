@@ -12,12 +12,23 @@
   width: 100%;
 }
 
-.flipBook {
-  box-shadow: 0 8px 40px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.18);
+/* When closed: clip the wrapper so nothing bleeds left of the cover.
+   The cover sits in the right half of the stf__wrapper, so we clip
+   overflow on the left side by hiding overflow on the bookWrap itself. */
+.bookClosed {
+  overflow: hidden;
+}
+.bookOpen {
+  overflow: visible;
 }
 
-/* ── Center spine (between the two open pages) ────────────────────────────── */
-/* Sits at the midpoint of the open spread — that's where the binding shows.   */
+/* No box-shadow on the container — that bleeds onto the empty side.
+   Instead we use filter:drop-shadow which only applies where pixels exist. */
+.flipBook {
+  filter: drop-shadow(4px 6px 24px rgba(0,0,0,0.32)) drop-shadow(2px 2px 6px rgba(0,0,0,0.18));
+}
+
+/* ── Center spine (binding seam, visible only when open) ─────────────────── */
 .centerSpine {
   position: absolute;
   top: 0; bottom: 0;
@@ -26,32 +37,18 @@
   transform: translateX(-50%);
   background: linear-gradient(
     to right,
-    rgba(0,0,0,0.22) 0%,
-    rgba(80,50,15,0.32) 35%,
-    rgba(120,80,30,0.45) 50%,
-    rgba(80,50,15,0.32) 65%,
-    rgba(0,0,0,0.22) 100%
+    rgba(0,0,0,0.18) 0%,
+    rgba(80,50,15,0.30) 35%,
+    rgba(120,80,30,0.42) 50%,
+    rgba(80,50,15,0.30) 65%,
+    rgba(0,0,0,0.18) 100%
   );
   pointer-events: none;
   z-index: 5;
-  border-radius: 1px;
   opacity: 0;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.3s ease;
 }
-
-/* Show the spine only when the book is open (past the cover) */
-.bookOpen .centerSpine {
-  opacity: 1;
-}
-
-/* ── Suppress react-pageflip's shadow on the closed-book empty side ───────── */
-/* When the book is closed (only cover visible), the library still draws a
-   shadow on the .stf__outerShadow / .stf__innerShadow elements. Hide them
-   when the book is in its closed state.                                       */
-.bookClosed :global(.stf__outerShadow),
-.bookClosed :global(.stf__innerShadow) {
-  display: none !important;
-}
+.bookOpen .centerSpine { opacity: 1; }
 
 /* ── Page base ────────────────────────────────────────────────────────────── */
 /* No spine bar — content fills the entire page, edge to edge.                 */
