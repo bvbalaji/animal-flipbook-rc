@@ -18,7 +18,14 @@
   box-shadow: 0 8px 40px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.18);
 }
 
-/* ── Page base ────────────────────────────────────────────────────────────── */
+/* Hide react-pageflip's internal shadow element on the blank left side
+   when the book is fully closed (only the cover is showing).
+   The library injects a .stf__shadow div — suppress it on the left block. */
+.flipBook :global(.stf__block.--left .stf__shadow) {
+  display: none !important;
+}
+
+/* ── Page base (right-hand pages) ─────────────────────────────────────────── */
 .page {
   position: relative;
   background: #fef9f0;
@@ -31,7 +38,33 @@
   user-select: none;
 }
 
-/* ── Spine ────────────────────────────────────────────────────────────────── */
+/* ── Left-hand page: rotate 180° so content reads correctly from the left ── */
+/* No spine strip — the rotation itself is the visual flip.                   */
+.pageLeft {
+  position: relative;
+  background: #fef9f0;
+  border: 1.5px solid #d4a96a;
+  border-radius: 12px 0 0 12px;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  user-select: none;
+  transform: rotate(180deg);
+}
+
+/* Content on left pages: full width, even padding (no spine offset) */
+.pageLeft .content {
+  left: 0;
+  padding: calc(var(--pw) * 0.045);
+}
+
+/* Lines on left pages: full width */
+.pageLeft .lines {
+  left: 0;
+}
+
+/* ── Spine — only on right-hand pages ─────────────────────────────────────── */
 .spine {
   position: absolute;
   left: 0; top: 0; bottom: 0;
@@ -56,17 +89,15 @@
   z-index: 0;
 }
 
-/* ── Content layer ────────────────────────────────────────────────────────── */
+/* ── Content layer — right pages (after spine) ────────────────────────────── */
 .content {
   position: absolute;
-  /* left edge starts after spine */
   left: calc(var(--pw) * 0.072);
   right: 0; top: 0; bottom: 0;
   z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* padding: top right bottom left-inner */
   padding: calc(var(--pw) * 0.045)
            calc(var(--pw) * 0.045)
            calc(var(--pw) * 0.03)
@@ -276,6 +307,7 @@
   overflow: hidden;
   box-sizing: border-box;
   user-select: none;
+  transform: rotate(180deg);
 }
 
 .titleVersoContent {
@@ -354,6 +386,11 @@
   text-overflow: ellipsis;
 }
 
+/* titleVerso has no spine — lines fill full width */
+.titleVerso .lines {
+  left: 0;
+}
+
 .versoCopyright {
   margin-top: auto;
   text-align: center;
@@ -389,6 +426,7 @@
 .coverBack {
   background: linear-gradient(135deg, #7a4e14, #a06820, #8b5e1a);
   border-radius: 12px 0 0 12px;
+  transform: rotate(180deg);
 }
 .coverSpine {
   position: absolute;

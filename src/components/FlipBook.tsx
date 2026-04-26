@@ -7,17 +7,17 @@ import styles from './FlipBook.module.css';
 const ANIMAL_OFFSET = 3;
 
 // ─── Animal page ──────────────────────────────────────────────────────────────
-// Props are ONLY data — no layout/size props.
-// --pw is inherited from the bookWrap ancestor via CSS.
+// isLeft = true when this page will sit on the left side of the open spread.
+// Left pages are rotated 180° — no spine strip, content reads naturally.
 
-interface PageProps { animal: Animal; index: number; total: number; }
+interface PageProps { animal: Animal; index: number; total: number; isLeft: boolean; }
 
 const Page = forwardRef<HTMLDivElement, PageProps>(
-  ({ animal, index, total }, ref) => {
+  ({ animal, index, total, isLeft }, ref) => {
     const wild = animal.type === 'wild';
     return (
-      <div ref={ref} className={`${styles.page} ${wild ? styles.wild : styles.domestic}`}>
-        <div className={styles.spine} />
+      <div ref={ref} className={`${isLeft ? styles.pageLeft : styles.page} ${wild ? styles.wild : styles.domestic}`}>
+        {!isLeft && <div className={styles.spine} />}
         <div className={styles.lines} />
         <div className={styles.content}>
           <div className={`${styles.badge} ${wild ? styles.badgeWild : styles.badgeDomestic}`}>
@@ -164,15 +164,22 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
 
   // Memoise the page list so it never changes identity between renders.
   // react-pageflip requires a stable, non-changing children array.
+  // Global page index: 0=CoverFront, 1=TitleRecto, 2=TitleVerso, 3..N+2=Animals
+  // Even global index = left side of spread, Odd = right side.
   const pages = useRef(
-    animals.map((animal, i) => (
-      <Page
-        key={`${animal.name}-${animal.type}`}
-        animal={animal}
-        index={i}
-        total={animals.length}
-      />
-    ))
+    animals.map((animal, i) => {
+      const globalPos = ANIMAL_OFFSET + i; // 3, 4, 5, ...
+      const isLeft = globalPos % 2 === 0;  // even = left page
+      return (
+        <Page
+          key={`${animal.name}-${animal.type}`}
+          animal={animal}
+          index={i}
+          total={animals.length}
+          isLeft={isLeft}
+        />
+      );
+    })
   );
 
   return (
