@@ -43,11 +43,11 @@
   width: 12px;
   background: linear-gradient(
     to right,
-    rgba(80,40,5,0.55) 0%,
-    rgba(160,100,30,0.80) 40%,
-    rgba(180,120,40,0.85) 50%,
-    rgba(160,100,30,0.80) 60%,
-    rgba(80,40,5,0.55) 100%
+    #4a2805 0%,
+    #a06828 35%,
+    #c88a3a 50%,
+    #a06828 65%,
+    #4a2805 100%
   );
   pointer-events: none;
   z-index: 10;
