@@ -142,6 +142,7 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
   const bookRef    = useRef<HTMLFlipBook>(null);
   const prevIndex  = useRef(currentIndex);
   const { pageW, pageH } = useBookSize();
+  const [isClosed, setIsClosed] = React.useState(true);
 
   const wrapStyle = { '--pw': `${pageW}px` } as React.CSSProperties;
 
@@ -153,6 +154,8 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
   }, [currentIndex]);
 
   const handleFlip = useCallback((e: { data: number }) => {
+    // Page 0 = front cover (closed), anything else = open
+    setIsClosed(e.data === 0);
     const animalIndex = e.data - ANIMAL_OFFSET;
     if (animalIndex >= 0 && animalIndex < animals.length) {
       onPageChange(animalIndex);
@@ -172,45 +175,44 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
 
   return (
     <div className={styles.bookWrap} style={wrapStyle}>
-      {/* Spine sits above pages normally (z-index 10), drops below during flip (z-index 0) */}
-      <div
-        className={styles.centerSpine}
-        aria-hidden="true"
-      />
+      <div className={styles.centerSpine} aria-hidden="true" />
 
-      <HTMLFlipBook
-        ref={bookRef}
-        width={pageW}
-        height={pageH}
-        size="fixed"
-        minWidth={120}
-        maxWidth={300}
-        minHeight={160}
-        maxHeight={400}
-        drawShadow
-        flippingTime={800}
-        usePortrait={false}
-        startZIndex={0}
-        autoSize={false}
-        maxShadowOpacity={0.6}
-        showCover
-        mobileScrollSupport={false}
-        clickEventForward
-        useMouseEvents
-        swipeDistance={20}
-        showPageCorners={false}
-        disableFlipByClick={false}
-        onFlip={handleFlip}
-        className={styles.flipBook}
-      >
-        <CoverFront />
-        <BlankLeft />
-        <IntroRight />
-        <IntroLeft />
-        {animalPages.current}
-        <BlankRight />
-        <CoverBack />
-      </HTMLFlipBook>
+      {/* clipWrap hides the shadow that bleeds onto the empty left side when closed */}
+      <div className={isClosed ? styles.clipWrapClosed : styles.clipWrapOpen}>
+        <HTMLFlipBook
+          ref={bookRef}
+          width={pageW}
+          height={pageH}
+          size="fixed"
+          minWidth={120}
+          maxWidth={300}
+          minHeight={160}
+          maxHeight={400}
+          drawShadow
+          flippingTime={800}
+          usePortrait={false}
+          startZIndex={0}
+          autoSize={false}
+          maxShadowOpacity={0.6}
+          showCover
+          mobileScrollSupport={false}
+          clickEventForward
+          useMouseEvents
+          swipeDistance={20}
+          showPageCorners={false}
+          disableFlipByClick={false}
+          onFlip={handleFlip}
+          className={styles.flipBook}
+        >
+          <CoverFront />
+          <BlankLeft />
+          <IntroRight />
+          <IntroLeft />
+          {animalPages.current}
+          <BlankRight />
+          <CoverBack />
+        </HTMLFlipBook>
+      </div>
     </div>
   );
 };

@@ -12,6 +12,18 @@
   box-shadow: 4px 6px 24px rgba(0,0,0,0.30), 1px 2px 6px rgba(0,0,0,0.15);
 }
 
+/* When closed, the book only occupies the right half of the wrapper but
+   box-shadow bleeds left onto the empty side. clip-path cuts off exactly
+   at the centre (left 50%) so the shadow only shows on the right half. */
+.clipWrapClosed {
+  clip-path: inset(-100px -100px -100px 50%);
+}
+
+/* When open, no clipping — shadow can show on both sides freely. */
+.clipWrapOpen {
+  clip-path: none;
+}
+
 /* ── Blank left page (back of front cover) ────────────────────────────────── */
 .blankLeft {
   width: 100%;
