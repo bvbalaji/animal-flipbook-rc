@@ -1,23 +1,16 @@
 import React, { forwardRef, useRef, useCallback, useEffect } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { Animal } from '../types/animal';
-import { useBookSize } from '../hooks/useBookSize';
 import styles from './FlipBook.module.css';
 
 // Page layout (0-indexed) in landscape/spread mode:
-//   0        = CoverFront  (right, hard cover)
-//   1        = BlankLeft   (left,  hard — back of front cover)
-//   2        = IntroRight  (right — introduction recto)
-//   3        = IntroLeft   (left  — introduction verso)
-//   4..N+3   = Animal pages
-//   N+4      = CoverBack   (left,  hard cover)
+//   0          = CoverFront  (right, hard cover)
+//   1          = BlankLeft   (left,  hard — back of front cover)
+//   2          = IntroRight  (right — introduction recto)
+//   3          = IntroLeft   (left  — introduction verso)
+//   4 .. N+3   = Animal pages
+//   N+4        = CoverBack   (left,  hard cover)
 const ANIMAL_OFFSET = 4;
-
-// Inline styles applied once at construction time — no CSS class toggling,
-// so the transform is baked in from the very first paint. React-pageflip
-// never sees an un-rotated page.
-const SHELL_STYLE:   React.CSSProperties = { transform: 'rotate(180deg)' };
-const CONTENT_STYLE: React.CSSProperties = { transform: 'rotate(180deg)' };
 
 // ─── Animal page ──────────────────────────────────────────────────────────────
 
@@ -25,27 +18,20 @@ interface PageProps {
   animal: Animal;
   index: number;
   total: number;
-  isLeft: boolean;
+  isLeft: boolean;   // left pages have no spine bar
 }
 
 const Page = forwardRef<HTMLDivElement, PageProps>(({ animal, index, total, isLeft }, ref) => {
   const wild = animal.type === 'wild';
   return (
-    // SHELL: rotated 180° via inline style (applied at first render, no flash)
     <div
       ref={ref}
-      style={SHELL_STYLE}
       className={`${styles.page} ${isLeft ? styles.pageLeft : styles.pageRight} ${wild ? styles.wild : styles.domestic}`}
     >
-      {/* Spine at left:0 on the div. After 180° rotation this becomes the
-          right physical edge → sits at the center seam of the open book. */}
+      {/* Spine only on right-hand pages */}
       {!isLeft && <div className={styles.spine} />}
       <div className={styles.lines} />
-      {/* CONTENT: counter-rotated 180° → 360° net → reads right-way up */}
-      <div
-        style={CONTENT_STYLE}
-        className={isLeft ? styles.contentLeft : styles.content}
-      >
+      <div className={isLeft ? styles.contentLeft : styles.content}>
         <div className={`${styles.badge} ${wild ? styles.badgeWild : styles.badgeDomestic}`}>
           {wild ? '🌿 Wild Animal' : '🏠 Domestic'}
         </div>
@@ -65,13 +51,18 @@ Page.displayName = 'Page';
 
 // ─── Introduction pages ───────────────────────────────────────────────────────
 
+// IntroRight — right-hand recto page (position 2, odd = right)
 const IntroRight = forwardRef<HTMLDivElement, Record<string, never>>((_props, ref) => (
-  <div ref={ref} style={SHELL_STYLE} className={`${styles.page} ${styles.pageRight} ${styles.introRight}`}>
+  <div ref={ref} className={`${styles.page} ${styles.pageRight} ${styles.introRight}`}>
     <div className={styles.spine} />
     <div className={styles.lines} />
-    <div style={CONTENT_STYLE} className={styles.content}>
-      <div className={styles.introBand}><span>🐾 Animal Flipbook</span></div>
-      <div className={styles.introEmojiCluster}>🐕 🦁 🐈 🐘 🦊 🐄 🐺 🐇 🐧</div>
+    <div className={styles.content}>
+      <div className={styles.introBand}>
+        <span>🐾 Animal Flipbook</span>
+      </div>
+      <div className={styles.introEmojiCluster}>
+        🐕 🦁 🐈 🐘 🦊 🐄 🐺 🐇 🐧
+      </div>
       <h1 className={styles.introTitle}>Welcome!</h1>
       <p className={styles.introBody}>
         This flipbook takes you on a journey through the animal kingdom —
@@ -88,10 +79,12 @@ const IntroRight = forwardRef<HTMLDivElement, Record<string, never>>((_props, re
 ));
 IntroRight.displayName = 'IntroRight';
 
+// IntroLeft — left-hand verso page (position 3, even from ANIMAL_OFFSET = left)
 const IntroLeft = forwardRef<HTMLDivElement, Record<string, never>>((_props, ref) => (
-  <div ref={ref} style={SHELL_STYLE} className={`${styles.page} ${styles.pageLeft} ${styles.introLeft}`}>
+  <div ref={ref} className={`${styles.page} ${styles.pageLeft} ${styles.introLeft}`}>
+    {/* No spine on left pages */}
     <div className={styles.lines} />
-    <div style={CONTENT_STYLE} className={styles.contentLeft}>
+    <div className={styles.contentLeft}>
       <p className={styles.introPublisher}>Lokpriyanth Press</p>
       <div className={styles.introHRule} />
       <h2 className={styles.introContentsTitle}>Contents</h2>
@@ -107,14 +100,14 @@ const IntroLeft = forwardRef<HTMLDivElement, Record<string, never>>((_props, ref
 ));
 IntroLeft.displayName = 'IntroLeft';
 
-// ─── Blank left page ──────────────────────────────────────────────────────────
+// ─── Blank left page (back of front cover) ────────────────────────────────────
 
 const BlankLeft = forwardRef<HTMLDivElement, Record<string, never>>((_props, ref) => (
   <div ref={ref} className={styles.blankLeft} data-density="hard" />
 ));
 BlankLeft.displayName = 'BlankLeft';
 
-// ─── Covers — NOT rotated ─────────────────────────────────────────────────────
+// ─── Covers ───────────────────────────────────────────────────────────────────
 
 const CoverFront = forwardRef<HTMLDivElement, Record<string, never>>((_props, ref) => (
   <div ref={ref} className={styles.cover}>
@@ -150,9 +143,6 @@ interface FlipBookProps {
 const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange }) => {
   const bookRef   = useRef<HTMLFlipBook>(null);
   const prevIndex = useRef(currentIndex);
-  const { pageW, pageH } = useBookSize();
-
-  const wrapStyle = { '--pw': `${pageW}px` } as React.CSSProperties;
 
   useEffect(() => {
     if (currentIndex !== prevIndex.current) {
@@ -168,33 +158,36 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
     }
   }, [animals.length, onPageChange]);
 
-  // Stable page list — computed once, never re-rendered
-  const animalPages = useRef(
-    animals.map((animal, i) => {
-      const globalPos = ANIMAL_OFFSET + i;
-      const isLeft = globalPos % 2 === 0;
-      return (
-        <Page
-          key={`${animal.name}-${animal.type}`}
-          animal={animal}
-          index={i}
-          total={animals.length}
-          isLeft={isLeft}
-        />
-      );
-    })
-  );
+  // Animal pages — isLeft determined by global position parity.
+  // Global pos = ANIMAL_OFFSET + i. Even global pos = left side, odd = right side.
+  // ANIMAL_OFFSET=4 (even), so:
+  //   i=0 → pos 4 (even) → LEFT
+  //   i=1 → pos 5 (odd)  → RIGHT
+  //   i=2 → pos 6 (even) → LEFT  ... etc.
+  const animalPages = animals.map((animal, i) => {
+    const globalPos = ANIMAL_OFFSET + i;
+    const isLeft = globalPos % 2 === 0;
+    return (
+      <Page
+        key={`${animal.name}-${animal.type}`}
+        animal={animal}
+        index={i}
+        total={animals.length}
+        isLeft={isLeft}
+      />
+    );
+  });
 
   return (
-    <div className={styles.bookWrap} style={wrapStyle}>
+    <div className={styles.bookWrap}>
       <HTMLFlipBook
         ref={bookRef}
-        width={pageW}
-        height={pageH}
+        width={300}
+        height={400}
         size="fixed"
-        minWidth={120}
+        minWidth={300}
         maxWidth={300}
-        minHeight={160}
+        minHeight={400}
         maxHeight={400}
         drawShadow
         flippingTime={800}
@@ -206,7 +199,7 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
         mobileScrollSupport={false}
         clickEventForward
         useMouseEvents
-        swipeDistance={20}
+        swipeDistance={30}
         showPageCorners
         disableFlipByClick={false}
         onFlip={handleFlip}
@@ -216,7 +209,7 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
         <BlankLeft />
         <IntroRight />
         <IntroLeft />
-        {animalPages.current}
+        {animalPages}
         <CoverBack />
       </HTMLFlipBook>
     </div>
