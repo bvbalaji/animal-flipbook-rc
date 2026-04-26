@@ -11,6 +11,7 @@
   flex-direction: column;
   align-items: center;
   padding: 1.4rem 1.2rem 1rem;
+  z-index: 20;
 }
 
 /* The back face is pre-flipped 180° so it shows correctly when the page turns */
@@ -18,12 +19,14 @@
   transform: rotateY(180deg);
   border-radius: 16px 4px 4px 16px;
   /* Mirror the spine to the right side for the back face */
+  z-index: 20;
 }
 
 .back .spine {
   left: unset !important;
   right: 0 !important;
   border-radius: 0 4px 4px 0 !important;
+  
 }
 
 /* Notebook horizontal lines */
@@ -57,7 +60,7 @@
   width: 20px;
   background: linear-gradient(to right, #a07840, #d4a060, #b88040, #a07840);
   border-radius: 4px 0 0 4px;
-  z-index: 3;
+  z-index: 1;
   flex-shrink: 0;
 }
 

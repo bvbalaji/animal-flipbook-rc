@@ -10,6 +10,7 @@
 
 .flipBook {
   box-shadow: 4px 6px 24px rgba(0,0,0,0.30), 1px 2px 6px rgba(0,0,0,0.15);
+  z-index: auto;
 }
 
 /* ── Blank left page (back of front cover) ────────────────────────────────── */
@@ -50,7 +51,7 @@
     #4a2805 100%
   );
   pointer-events: none;
-  z-index: 10;
+  z-index: 1;
 }
 
 /* ── Page base ────────────────────────────────────────────────────────────── */
@@ -65,6 +66,8 @@
   flex-direction: column;
   box-sizing: border-box;
   user-select: none;
+  z-index: 20;
+  
 }
 
 /* Right pages: rounded on the outer (right) edge */

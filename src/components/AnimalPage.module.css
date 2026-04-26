@@ -5,6 +5,7 @@
   transform-style: preserve-3d;
   transform-origin: left center;
   will-change: transform;
+  z-index: 1;
 }
 
 /* ─── Forward turn: 0° → -180° ──────────────────────────────────────── */
