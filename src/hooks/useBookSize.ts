@@ -6,7 +6,7 @@ interface BookSize {
 }
 
 const BASE_W = 300;
-const BASE_H = 400;
+const BASE_H = 800;
 const ASPECT = BASE_H / BASE_W; // 4/3
 
 function compute(): BookSize {
@@ -19,13 +19,8 @@ function compute(): BookSize {
   // Two pages side-by-side. Reserve 32px total horizontal padding.
   const maxWByWidth = Math.floor((vw - 32) / 2);
 
-  // ── Height constraint ──────────────────────────────────────────────────────
-  // Measure the actual non-book UI height at runtime if possible,
-  // otherwise fall back to a conservative estimate.
-  // Elements above/below the book: header (~80px) + tabs (~50px) +
-  // hint (~28px) + footer (~40px) + gaps (~60px) = ~258px.
-  // Add 20px extra safety margin → 278px.
-  const CHROME_H = 278;
+  // App chrome: header (~55px) + tabs (~44px) + hint (~24px) + footer (~28px) + gaps (~30px) = ~181px
+  const CHROME_H = 181;
   const maxHByHeight = vh - CHROME_H;
 
   // Convert max height to the equivalent max width (keep aspect ratio)

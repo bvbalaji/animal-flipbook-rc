@@ -4,18 +4,18 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 1rem 1rem 2rem;
+  padding: 0.5rem 1rem 0.5rem;
   overflow-x: hidden;
 }
 
 .header {
   text-align: center;
-  margin-bottom: clamp(0.5rem, 2vw, 2rem);
+  margin-bottom: clamp(0.25rem, 1vw, 0.75rem);
 }
 
 .title {
   font-family: 'Fredoka One', cursive;
-  font-size: clamp(1.4rem, 5vw, 3.4rem);
+  font-size: clamp(1.2rem, 4vw, 2.8rem);
   color: #5c3d0a;
   letter-spacing: 1px;
   text-shadow: 2px 3px 0px rgba(0, 0, 0, 0.1);
@@ -23,48 +23,30 @@
 }
 
 .subtitle {
-  font-size: 0.95rem;
+  font-size: clamp(0.7rem, 2vw, 0.95rem);
   color: #8a6030;
-  margin-top: 0.4rem;
+  margin-top: 0.2rem;
   font-weight: 600;
 }
 
-.bookWrap {
-  box-shadow:
-    8px 8px 0px #b8945a,
-    12px 12px 0px #c8a96e,
-    16px 16px 32px rgba(0,0,0,0.22);
-  border-radius: 4px 16px 16px 4px;
-  position: relative;
-  margin-bottom: 1.2rem;
-}
-
-.counter {
-  font-family: 'Fredoka One', cursive;
-  font-size: 17px;
-  color: #7c5c2a;
-  text-align: center;
-  margin-top: 0.2rem;
-}
-
 .hint {
-  font-size: 12px;
+  font-size: 11px;
   color: #a07840;
   text-align: center;
-  margin-top: 0.4rem;
+  margin-top: 0.25rem;
   font-weight: 600;
   letter-spacing: 0.5px;
 }
 
 .footer {
-  margin-top: 1.6rem;
-  font-size: 12px;
+  margin-top: 0.4rem;
+  font-size: 11px;
   color: #9a7042;
   font-weight: 700;
   letter-spacing: 0.8px;
   text-align: center;
   border-top: 1px dashed #c8a96e;
-  padding-top: 0.8rem;
+  padding-top: 0.3rem;
   width: 100%;
   max-width: 360px;
 }
