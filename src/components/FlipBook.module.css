@@ -51,392 +51,398 @@
 .bookOpen .centerSpine { opacity: 1; }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   INNER PAGES — HEY ZINE EDITORIAL STYLE
-   Clean white background, bold colour header block, crisp typography,
-   minimal borders. No textures, no notebook lines.
+   HEY ZINE — CURL ANIMATION ENHANCEMENTS
+   All the magic below targets the library's own injected DOM elements to
+   replicate the smooth, weighty, paper-like curl that Hey Zine is known for.
 ══════════════════════════════════════════════════════════════════════════════ */
 
-/* ── Page shell ───────────────────────────────────────────────────────────── */
+/* ── 1. Slow, eased transitions on the shadow elements ─────────────────────
+   Hey Zine's shadow builds gradually as the page lifts — not a sudden cut.    */
+.flipBook :global(.stf__outerShadow),
+.flipBook :global(.stf__innerShadow),
+.flipBook :global(.stf__hardShadow),
+.flipBook :global(.stf__hardInnerShadow) {
+  transition: opacity 120ms ease-out !important;
+}
+
+/* ── 2. Page corner lift on hover ──────────────────────────────────────────
+   Hey Zine shows a subtle curl at the bottom-right corner of the right-side
+   page and bottom-left of the left-side page before any drag starts.
+   The library wraps each page in .stf__item — we use a pseudo-element
+   on those items to draw the lifted-corner triangle.                          */
+
+/* Right-hand page corner (bottom-right) */
+.flipBook :global(.stf__item.--right)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0;
+  border-color: transparent transparent rgba(180,140,80,0.25) transparent;
+  transition: border-width 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  z-index: 10;
+}
+.flipBook :global(.stf__item.--right):hover::after {
+  border-width: 0 0 calc(var(--pw) * 0.12) calc(var(--pw) * 0.12);
+}
+
+/* Left-hand page corner (bottom-left) */
+.flipBook :global(.stf__item.--left)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0;
+  border-color: transparent transparent transparent rgba(180,140,80,0.25);
+  transition: border-width 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  z-index: 10;
+}
+.flipBook :global(.stf__item.--left):hover::after {
+  border-width: 0 0 calc(var(--pw) * 0.12) calc(var(--pw) * 0.12);
+}
+
+/* ── 3. Paper-depth inner shadow on each page ──────────────────────────────
+   Adds a very subtle inset shadow along the spine edge of every page,
+   simulating the way paper bends slightly near the binding.                  */
+.flipBook :global(.stf__item.--right .stf__block) {
+  box-shadow: inset 8px 0 18px -8px rgba(120,80,20,0.18);
+}
+.flipBook :global(.stf__item.--left .stf__block) {
+  box-shadow: inset -8px 0 18px -8px rgba(120,80,20,0.18);
+}
+
+/* ── 4. Smooth opacity entry as pages come to rest ─────────────────────────
+   Pages fade in very slightly when settling — imperceptible but removes
+   the snap feel and adds weight.                                              */
+.flipBook :global(.stf__item) {
+  transition: filter 300ms ease;
+}
+.flipBook :global(.stf__item.--simple) {
+  filter: brightness(1.0);
+}
+
+
+/* No spine bar — content fills the entire page, edge to edge.                 */
 .page {
   position: relative;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 0 4px 4px 0;
+  background: #fef9f0;
+  border: 1.5px solid #d4a96a;
+  border-radius: 0 12px 12px 0;
   overflow: hidden;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
   user-select: none;
-  display: flex;
-  flex-direction: column;
 }
 
-/* ── Header block (coloured, full-bleed top) ──────────────────────────────── */
-.pageHeader {
-  flex-shrink: 0;
-  background: var(--hue-bg, #1a1a2e);
-  height: calc(var(--pw) * 0.52);
+/* ── Notebook lines ───────────────────────────────────────────────────────── */
+.lines {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent calc(var(--pw) * 0.11),
+    rgba(160,120,60,0.13) calc(var(--pw) * 0.11),
+    rgba(160,120,60,0.13) calc(var(--pw) * 0.114)
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Content layer ────────────────────────────────────────────────────────── */
+.content {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: calc(var(--pw) * 0.02);
-  padding: calc(var(--pw) * 0.04) calc(var(--pw) * 0.05);
+  padding: calc(var(--pw) * 0.045);
   box-sizing: border-box;
-  position: relative;
   overflow: hidden;
 }
 
-/* Subtle radial glow behind the emoji */
-.pageHeader::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 60%, rgba(255,255,255,0.10) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-/* Category pill */
-.catPill {
+/* ── Badge ────────────────────────────────────────────────────────────────── */
+.badge {
   font-family: 'Nunito', sans-serif;
   font-size: calc(var(--pw) * 0.034);
   font-weight: 800;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: var(--hue-text, #111);
-  background: var(--accent, #f59e0b);
-  border-radius: 999px;
-  padding: calc(var(--pw) * 0.01) calc(var(--pw) * 0.055);
+  padding: calc(var(--pw) * 0.012) calc(var(--pw) * 0.048);
+  border-radius: 30px;
+  margin-bottom: calc(var(--pw) * 0.025);
   white-space: nowrap;
   flex-shrink: 0;
 }
+.badgeDomestic { background: #fde68a; color: #78350f; }
+.badgeWild     { background: #bbf7d0; color: #065f46; }
 
-/* Giant emoji */
-.pageEmoji {
-  font-size: calc(var(--pw) * 0.28);
+/* ── Emoji ────────────────────────────────────────────────────────────────── */
+.emoji {
+  font-size: calc(var(--pw) * 0.27);
   line-height: 1;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));
-  animation: floatUp 3.2s ease-in-out infinite;
+  margin: calc(var(--pw) * 0.01) 0 calc(var(--pw) * 0.025);
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
+  animation: bob 3s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes bob {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(calc(var(--pw) * -0.018)); }
 }
 
-@keyframes floatUp {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(calc(var(--pw) * -0.022)); }
-}
-
-/* ── Body ─────────────────────────────────────────────────────────────────── */
-.pageBody {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: calc(var(--pw) * 0.05) calc(var(--pw) * 0.06) 0;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-/* Animal name */
-.pageName {
+/* ── Name ─────────────────────────────────────────────────────────────────── */
+.name {
   font-family: 'Fredoka One', cursive;
-  font-size: calc(var(--pw) * 0.115);
+  font-size: calc(var(--pw) * 0.088);
   font-weight: 400;
-  color: #111827;
-  margin: 0 0 calc(var(--pw) * 0.02);
-  line-height: 1;
-  letter-spacing: -0.5px;
-}
-
-/* Thin accent rule under the name */
-.pageRule {
-  width: calc(var(--pw) * 0.12);
-  height: 3px;
-  background: var(--accent, #f59e0b);
-  border-radius: 2px;
-  margin-bottom: calc(var(--pw) * 0.028);
+  color: #2d1a04;
+  margin: 0 0 calc(var(--pw) * 0.018);
+  text-align: center;
+  line-height: 1.1;
   flex-shrink: 0;
 }
 
-/* Description */
-.pageDesc {
+/* ── Description ──────────────────────────────────────────────────────────── */
+.desc {
   font-family: 'Nunito', sans-serif;
-  font-size: calc(var(--pw) * 0.044);
+  font-size: calc(var(--pw) * 0.042);
   font-weight: 600;
-  color: #374151;
-  line-height: 1.5;
+  color: #7a5220;
+  line-height: 1.4;
+  text-align: center;
   margin: 0;
   overflow: hidden;
 }
 
-/* ── Fun fact card ─────────────────────────────────────────────────────────── */
-.pageFact {
+/* ── Fun fact box ─────────────────────────────────────────────────────────── */
+.fact {
   margin-top: auto;
-  display: flex;
-  align-items: flex-start;
-  gap: calc(var(--pw) * 0.03);
-  background: var(--hue-light, #fef3c7);
-  border-left: calc(var(--pw) * 0.018) solid var(--accent, #f59e0b);
-  border-radius: 0 calc(var(--pw) * 0.02) calc(var(--pw) * 0.02) 0;
-  padding: calc(var(--pw) * 0.032) calc(var(--pw) * 0.04);
-  box-sizing: border-box;
-  flex-shrink: 0;
-}
-
-.pageFactIcon {
-  font-size: calc(var(--pw) * 0.055);
-  line-height: 1;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-.pageFactLabel {
-  display: block;
-  font-family: 'Nunito', sans-serif;
-  font-size: calc(var(--pw) * 0.034);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--hue-bg, #78350f);
-  margin-bottom: calc(var(--pw) * 0.008);
-}
-
-.pageFactText {
-  display: block;
+  width: 100%;
+  background: linear-gradient(to bottom, rgba(255,246,196,0.94), rgba(255,232,140,0.88));
+  border: 1.2px dashed #c89820;
+  border-radius: calc(var(--pw) * 0.025);
+  padding: calc(var(--pw) * 0.028) calc(var(--pw) * 0.035);
   font-family: 'Nunito', sans-serif;
   font-size: calc(var(--pw) * 0.038);
-  font-weight: 600;
-  color: #1f2937;
+  color: #5c3308;
   line-height: 1.4;
-}
-
-/* ── Footer bar ───────────────────────────────────────────────────────────── */
-.pageFooter {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: calc(var(--pw) * 0.022) calc(var(--pw) * 0.06);
-  border-top: 1px solid #f3f4f6;
+  text-align: center;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
-
-.pageFooterBrand {
-  font-family: 'Nunito', sans-serif;
-  font-size: calc(var(--pw) * 0.03);
-  font-weight: 700;
-  color: #9ca3af;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+.factLabel {
+  font-weight: 800;
+  color: #92400e;
+  display: block;
+  margin-bottom: calc(var(--pw) * 0.01);
 }
+.factText { font-weight: 600; }
 
-.pageFooterNum {
+/* ── Page number ──────────────────────────────────────────────────────────── */
+.pageNum {
   font-family: 'Nunito', sans-serif;
-  font-size: calc(var(--pw) * 0.032);
+  font-size: calc(var(--pw) * 0.034);
   font-weight: 700;
-  color: #d1d5db;
+  color: #b8945a;
+  margin-top: calc(var(--pw) * 0.018);
+  text-align: center;
+  flex-shrink: 0;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   TITLE PAGE — RECTO (right-hand, Hey Zine editorial)
+   TITLE PAGE — RECTO
 ══════════════════════════════════════════════════════════════════════════════ */
 .titleRecto {
   position: relative;
   width: 100%;
   height: 100%;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 0 4px 4px 0;
+  background: linear-gradient(160deg, #fef9f0, #faecd8);
+  border: 1.5px solid #d4a96a;
+  border-radius: 0 12px 12px 0;
   overflow: hidden;
   box-sizing: border-box;
   user-select: none;
-  display: flex;
-  flex-direction: column;
 }
 
-/* Dark hero fills top ~60% */
-.titleHero {
-  flex: 0 0 60%;
-  background: #111827;
+.titleRectoContent {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: calc(var(--pw) * 0.06) calc(var(--pw) * 0.06) calc(var(--pw) * 0.04);
+  padding: calc(var(--pw) * 0.04) calc(var(--pw) * 0.05);
   box-sizing: border-box;
   gap: calc(var(--pw) * 0.018);
-  position: relative;
   overflow: hidden;
 }
 
-.titleHero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 30% 50%, rgba(245,158,11,0.15), transparent 60%);
-  pointer-events: none;
+.titleBand {
+  width: 100%;
+  background: linear-gradient(90deg, #8b5e1a, #c8861e, #8b5e1a);
+  border-radius: 4px;
+  padding: calc(var(--pw) * 0.016) 0;
+  text-align: center;
 }
-
-.titleHeroEyebrow {
+.titleBandText {
   font-family: 'Nunito', sans-serif;
   font-size: calc(var(--pw) * 0.032);
   font-weight: 800;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: #f59e0b;
-  margin: 0;
+  color: #fff8e8;
 }
 
-.titleHeroEmojis {
-  font-size: calc(var(--pw) * 0.07);
-  line-height: 1.4;
-  letter-spacing: 2px;
-  text-align: center;
-}
-
-.titleHeroHeading {
-  font-family: 'Fredoka One', cursive;
-  font-size: calc(var(--pw) * 0.16);
-  font-weight: 400;
-  color: #ffffff;
-  text-align: center;
-  line-height: 1.0;
-  margin: 0;
-  letter-spacing: -1px;
-}
-
-/* White lower panel */
-.titleLower {
-  flex: 1;
+.titleEmojiRow {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding: calc(var(--pw) * 0.05) calc(var(--pw) * 0.07);
-  box-sizing: border-box;
-  gap: calc(var(--pw) * 0.02);
-  border-top: 4px solid #f59e0b;
+  gap: calc(var(--pw) * 0.03);
+  font-size: calc(var(--pw) * 0.1);
+  line-height: 1;
 }
 
-.titleLowerSub {
-  font-family: 'Nunito', sans-serif;
-  font-size: calc(var(--pw) * 0.044);
-  font-weight: 600;
-  color: #374151;
-  line-height: 1.5;
+.titleHeading {
+  font-family: 'Fredoka One', cursive;
+  font-size: calc(var(--pw) * 0.115);
+  font-weight: 400;
+  color: #2d1a04;
+  text-align: center;
+  line-height: 1.1;
   margin: 0;
 }
 
-.titleLowerMeta {
+.titleSubtitle {
+  font-family: 'Nunito', sans-serif;
+  font-size: calc(var(--pw) * 0.038);
+  font-weight: 600;
+  color: #7a5220;
+  text-align: center;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.titleDivider {
   display: flex;
   align-items: center;
-  gap: calc(var(--pw) * 0.02);
+  gap: calc(var(--pw) * 0.025);
+  width: 80%;
+}
+.titleDivider span:first-child,
+.titleDivider span:last-child {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c8a060, transparent);
+  display: block;
+}
+.titleDivider span:nth-child(2) { font-size: calc(var(--pw) * 0.05); }
+
+.titleEdition {
   font-family: 'Nunito', sans-serif;
-  font-size: calc(var(--pw) * 0.034);
+  font-size: calc(var(--pw) * 0.032);
   font-weight: 700;
-  color: #9ca3af;
+  letter-spacing: 1px;
+  color: #b8945a;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  margin: 0;
 }
 
-.titleLowerDot { color: #d1d5db; }
-
 /* ══════════════════════════════════════════════════════════════════════════════
-   TITLE PAGE — VERSO (left-hand, Hey Zine editorial)
+   TITLE PAGE — VERSO
 ══════════════════════════════════════════════════════════════════════════════ */
 .titleVerso {
   position: relative;
   width: 100%;
   height: 100%;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px 0 0 4px;
+  background: linear-gradient(160deg, #fdf4e4, #f8e8c8);
+  border: 1.5px solid #d4a96a;
+  border-radius: 12px 0 0 12px;
   overflow: hidden;
   box-sizing: border-box;
   user-select: none;
 }
 
-.versoInner {
+.titleVersoContent {
   position: absolute;
   inset: 0;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: calc(var(--pw) * 0.07) calc(var(--pw) * 0.07) calc(var(--pw) * 0.05);
+  padding: calc(var(--pw) * 0.06) calc(var(--pw) * 0.055) calc(var(--pw) * 0.05);
   box-sizing: border-box;
   overflow: hidden;
 }
 
-/* Publisher mark */
-.versoMark {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: calc(var(--pw) * 0.01);
-}
-
-.versoMarkEmoji {
-  font-size: calc(var(--pw) * 0.1);
+.versoCrest {
+  font-size: calc(var(--pw) * 0.11);
   line-height: 1;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-}
-
-.versoMarkName {
-  font-family: 'Fredoka One', cursive;
-  font-size: calc(var(--pw) * 0.044);
-  font-weight: 400;
-  color: #374151;
-  letter-spacing: 0.5px;
-}
-
-.versoHRule {
-  width: 100%;
-  height: 1px;
-  background: #e5e7eb;
-  margin: calc(var(--pw) * 0.04) 0;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
   flex-shrink: 0;
 }
-
-.versoAboutTitle {
+.versoPublisher {
   font-family: 'Fredoka One', cursive;
-  font-size: calc(var(--pw) * 0.065);
+  font-size: calc(var(--pw) * 0.046);
   font-weight: 400;
-  color: #111827;
-  margin: 0 0 calc(var(--pw) * 0.02);
-  text-align: left;
-  align-self: flex-start;
+  color: #8b5e1a;
+  letter-spacing: 1px;
+  margin: calc(var(--pw) * 0.01) 0 0;
   flex-shrink: 0;
 }
-
-.versoAboutText {
+.versoDivider {
+  width: 60%;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, #c8a060, transparent);
+  margin: calc(var(--pw) * 0.03) 0;
+  flex-shrink: 0;
+}
+.versoTitle {
+  font-family: 'Fredoka One', cursive;
+  font-size: calc(var(--pw) * 0.056);
+  font-weight: 400;
+  color: #2d1a04;
+  margin: 0 0 calc(var(--pw) * 0.025);
+  text-align: center;
+  flex-shrink: 0;
+}
+.versoBody {
   font-family: 'Nunito', sans-serif;
   font-size: calc(var(--pw) * 0.037);
   font-weight: 600;
-  color: #6b7280;
-  line-height: 1.55;
-  text-align: left;
-  margin: 0 0 calc(var(--pw) * 0.018);
-  align-self: flex-start;
+  color: #6b4c1e;
+  line-height: 1.45;
+  text-align: center;
+  margin: 0 0 calc(var(--pw) * 0.02);
   overflow: hidden;
 }
 
-/* Animal index grid */
-.versoGrid {
+.versoAnimalList {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: calc(var(--pw) * 0.014) calc(var(--pw) * 0.016);
-  margin: calc(var(--pw) * 0.02) 0;
+  gap: calc(var(--pw) * 0.012) calc(var(--pw) * 0.02);
+  margin: calc(var(--pw) * 0.025) 0;
   width: 100%;
   flex-shrink: 0;
 }
-
-.versoGridItem {
+.versoAnimalList span {
   font-family: 'Nunito', sans-serif;
   font-size: calc(var(--pw) * 0.034);
   font-weight: 700;
-  color: #374151;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: calc(var(--pw) * 0.015);
-  padding: calc(var(--pw) * 0.012) calc(var(--pw) * 0.01);
+  color: #7a5220;
   text-align: center;
+  background: rgba(255,235,160,0.5);
+  border-radius: 4px;
+  padding: calc(var(--pw) * 0.01) calc(var(--pw) * 0.015);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -444,16 +450,19 @@
 
 .versoCopyright {
   margin-top: auto;
-  font-family: 'Nunito', sans-serif;
-  font-size: calc(var(--pw) * 0.03);
-  font-weight: 700;
-  color: #9ca3af;
-  letter-spacing: 0.3px;
   text-align: center;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px dashed #c8a060;
   padding-top: calc(var(--pw) * 0.025);
   width: 100%;
   flex-shrink: 0;
+}
+.versoCopyright p {
+  font-family: 'Nunito', sans-serif;
+  font-size: calc(var(--pw) * 0.032);
+  font-weight: 700;
+  color: #a07840;
+  margin: 0;
+  letter-spacing: 0.3px;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
