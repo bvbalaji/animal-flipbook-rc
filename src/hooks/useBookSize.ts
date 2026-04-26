@@ -6,7 +6,7 @@ interface BookSize {
 }
 
 const BASE_W = 300;
-const BASE_H = 800;
+const BASE_H = 720;
 const ASPECT = BASE_H / BASE_W; // 4/3
 
 function compute(): BookSize {
