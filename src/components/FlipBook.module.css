@@ -1,19 +1,21 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   All sizing is relative to --pw (page width in px), injected per-page.
+   This ensures content always fits inside the book regardless of screen size.
+   e.g. on a 171px page: emoji = 171 * 0.28 ≈ 48px  (fits perfectly)
+        on a 300px page: emoji = 300 * 0.28 ≈ 84px  → clamped to 72px
+───────────────────────────────────────────────────────────────────────────── */
+
 /* ── Book wrapper ─────────────────────────────────────────────────────────── */
 .bookWrap {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: 1.2rem;
-  /* Landscape double-page: book is 600px wide */
   width: 100%;
-  overflow-x: auto;
 }
 
 .flipBook {
-  box-shadow:
-    0 8px 40px rgba(0,0,0,0.28),
-    0 2px 8px rgba(0,0,0,0.18);
-  border-radius: 4px 14px 14px 4px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.18);
 }
 
 /* ── Page base ────────────────────────────────────────────────────────────── */
@@ -21,41 +23,34 @@
   position: relative;
   background: #fef9f0;
   border: 1.5px solid #d4a96a;
-  border-radius: 0 14px 14px 0;
+  border-radius: 0 12px 12px 0;
   overflow: hidden;
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
   box-sizing: border-box;
   user-select: none;
-}
-
-/* Left-hand pages (even pages in spread) get left rounding */
-.page:nth-child(even) {
-  border-radius: 14px 0 0 14px;
 }
 
 /* ── Spine ────────────────────────────────────────────────────────────────── */
 .spine {
   position: absolute;
   left: 0; top: 0; bottom: 0;
-  width: clamp(10px, 6%, 22px);
+  width: calc(var(--pw) * 0.072);
   background: linear-gradient(to right, #7a5420, #c08030, #a86e28, #7a5420);
   z-index: 2;
-  flex-shrink: 0;
 }
 
 /* ── Notebook lines ───────────────────────────────────────────────────────── */
 .lines {
   position: absolute;
-  left: clamp(10px, 6%, 22px); right: 0; top: 0; bottom: 0;
+  left: calc(var(--pw) * 0.072);
+  right: 0; top: 0; bottom: 0;
   background-image: repeating-linear-gradient(
     to bottom,
     transparent,
-    transparent 33px,
-    rgba(160, 120, 60, 0.13) 33px,
-    rgba(160, 120, 60, 0.13) 34px
+    transparent calc(var(--pw) * 0.11),
+    rgba(160,120,60,0.13) calc(var(--pw) * 0.11),
+    rgba(160,120,60,0.13) calc(var(--pw) * 0.114)
   );
   pointer-events: none;
   z-index: 0;
@@ -63,65 +58,76 @@
 
 /* ── Content layer ────────────────────────────────────────────────────────── */
 .content {
-  position: relative;
+  position: absolute;
+  /* left edge starts after spine */
+  left: calc(var(--pw) * 0.072);
+  right: 0; top: 0; bottom: 0;
   z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: clamp(6px, 4%, 14px) clamp(6px, 4%, 14px) clamp(4px, 3%, 10px) clamp(14px, 8%, 34px);
-  height: 100%;
+  /* padding: top right bottom left-inner */
+  padding: calc(var(--pw) * 0.045)
+           calc(var(--pw) * 0.045)
+           calc(var(--pw) * 0.03)
+           calc(var(--pw) * 0.045);
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* ── Badge ────────────────────────────────────────────────────────────────── */
 .badge {
   font-family: 'Nunito', sans-serif;
-  font-size: clamp(7px, 2.5vw, 9.5px);
+  font-size: calc(var(--pw) * 0.034);
   font-weight: 800;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
-  padding: clamp(2px, 1%, 4px) clamp(6px, 4%, 14px);
+  padding: calc(var(--pw) * 0.012) calc(var(--pw) * 0.048);
   border-radius: 30px;
-  margin-bottom: clamp(4px, 2%, 8px);
-  margin-top: 2px;
+  margin-bottom: calc(var(--pw) * 0.025);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
-
 .badgeDomestic { background: #fde68a; color: #78350f; }
 .badgeWild     { background: #bbf7d0; color: #065f46; }
 
 /* ── Emoji ────────────────────────────────────────────────────────────────── */
 .emoji {
-  font-size: clamp(28px, 12vw, 72px);
+  font-size: calc(var(--pw) * 0.27);
   line-height: 1;
-  margin: clamp(2px, 1%, 4px) 0 clamp(4px, 2%, 10px);
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+  margin: calc(var(--pw) * 0.01) 0 calc(var(--pw) * 0.025);
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
   animation: bob 3s ease-in-out infinite;
+  flex-shrink: 0;
 }
-
 @keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-6px); }
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(calc(var(--pw) * -0.018)); }
 }
 
 /* ── Name ─────────────────────────────────────────────────────────────────── */
 .name {
   font-family: 'Fredoka One', cursive;
-  font-size: clamp(13px, 5vw, 26px);
+  font-size: calc(var(--pw) * 0.088);
   font-weight: 400;
   color: #2d1a04;
-  margin: 0 0 clamp(3px, 1.5%, 6px);
+  margin: 0 0 calc(var(--pw) * 0.018);
   text-align: center;
+  line-height: 1.1;
+  flex-shrink: 0;
 }
 
 /* ── Description ──────────────────────────────────────────────────────────── */
 .desc {
   font-family: 'Nunito', sans-serif;
-  font-size: clamp(8px, 2.8vw, 12px);
+  font-size: calc(var(--pw) * 0.042);
   font-weight: 600;
   color: #7a5220;
-  line-height: 1.45;
+  line-height: 1.4;
   text-align: center;
   margin: 0;
+  /* allow description to shrink if needed */
+  overflow: hidden;
 }
 
 /* ── Fun fact box ─────────────────────────────────────────────────────────── */
@@ -129,195 +135,115 @@
   margin-top: auto;
   width: 100%;
   background: linear-gradient(to bottom, rgba(255,246,196,0.94), rgba(255,232,140,0.88));
-  border: 1.4px dashed #c89820;
-  border-radius: 8px;
-  padding: clamp(5px, 2%, 9px) clamp(6px, 3%, 11px);
+  border: 1.2px dashed #c89820;
+  border-radius: calc(var(--pw) * 0.025);
+  padding: calc(var(--pw) * 0.028) calc(var(--pw) * 0.035);
   font-family: 'Nunito', sans-serif;
-  font-size: clamp(7.5px, 2.5vw, 11.5px);
+  font-size: calc(var(--pw) * 0.038);
   color: #5c3308;
-  line-height: 1.45;
+  line-height: 1.4;
   text-align: center;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
-
 .factLabel {
   font-weight: 800;
   color: #92400e;
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: calc(var(--pw) * 0.01);
 }
-
-.factText {
-  font-weight: 600;
-}
+.factText { font-weight: 600; }
 
 /* ── Page number ──────────────────────────────────────────────────────────── */
 .pageNum {
   font-family: 'Nunito', sans-serif;
-  font-size: clamp(8px, 2.2vw, 10.5px);
+  font-size: calc(var(--pw) * 0.034);
   font-weight: 700;
   color: #b8945a;
-  letter-spacing: 0.4px;
-  margin-top: clamp(4px, 2%, 8px);
+  margin-top: calc(var(--pw) * 0.018);
   text-align: center;
-}
-
-/* ── Covers ───────────────────────────────────────────────────────────────── */
-.cover {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #8b5e1a 0%, #c8861e 40%, #a06820 70%, #7a4e14 100%);
-  border-radius: 0 14px 14px 0;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-}
-
-.coverBack {
-  background: linear-gradient(135deg, #7a4e14 0%, #a06820 50%, #8b5e1a 100%);
-  border-radius: 14px 0 0 14px;
-}
-
-.coverSpine {
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 24px;
-  background: linear-gradient(to right, rgba(0,0,0,0.35), rgba(0,0,0,0.1), transparent);
-}
-
-.coverContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 20px;
-  text-align: center;
-}
-
-.coverEmoji {
-  font-size: clamp(36px, 12vw, 72px);
-  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
-}
-
-.coverTitle {
-  font-family: 'Fredoka One', cursive;
-  font-size: clamp(18px, 6vw, 32px);
-  font-weight: 400;
-  color: #fff8e8;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
-  margin: 0;
-}
-
-.coverSub {
-  font-family: 'Nunito', sans-serif;
-  font-size: clamp(9px, 2.5vw, 13px);
-  font-weight: 700;
-  color: rgba(255,240,200,0.85);
-  margin: 0;
-  letter-spacing: 0.3px;
-}
-
-.coverBackText {
-  font-family: 'Nunito', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: rgba(255,240,200,0.8);
-  text-align: center;
-  margin: 0;
+  flex-shrink: 0;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   TITLE PAGE — RECTO (right-hand page)
+   TITLE PAGE — RECTO
 ══════════════════════════════════════════════════════════════════════════════ */
-
 .titleRecto {
   position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(160deg, #fef9f0 0%, #faecd8 100%);
+  background: linear-gradient(160deg, #fef9f0, #faecd8);
   border: 1.5px solid #d4a96a;
-  border-radius: 0 14px 14px 0;
+  border-radius: 0 12px 12px 0;
   overflow: hidden;
   box-sizing: border-box;
   user-select: none;
 }
 
 .titleRectoContent {
-  position: relative;
+  position: absolute;
+  left: calc(var(--pw) * 0.072);
+  right: 0; top: 0; bottom: 0;
   z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  padding: clamp(6px,4%,14px) clamp(8px,5%,18px) clamp(6px,4%,14px) clamp(14px,8%,32px);
+  padding: calc(var(--pw) * 0.04) calc(var(--pw) * 0.05);
   box-sizing: border-box;
-  gap: clamp(3px, 1.5%, 6px);
+  gap: calc(var(--pw) * 0.018);
+  overflow: hidden;
 }
 
-/* Top decorative band */
 .titleBand {
   width: 100%;
   background: linear-gradient(90deg, #8b5e1a, #c8861e, #8b5e1a);
-  border-radius: 6px;
-  padding: 5px 0;
+  border-radius: 4px;
+  padding: calc(var(--pw) * 0.016) 0;
   text-align: center;
-  margin-bottom: 4px;
 }
-
 .titleBandText {
   font-family: 'Nunito', sans-serif;
-  font-size: 9px;
+  font-size: calc(var(--pw) * 0.032);
   font-weight: 800;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   color: #fff8e8;
 }
 
-/* Emoji grid */
 .titleEmojiRow {
   display: flex;
-  gap: clamp(4px, 2%, 10px);
-  font-size: clamp(14px, 5vw, 26px);
+  gap: calc(var(--pw) * 0.03);
+  font-size: calc(var(--pw) * 0.1);
   line-height: 1;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
 }
 
-/* Main heading */
 .titleHeading {
   font-family: 'Fredoka One', cursive;
-  font-size: clamp(18px, 6vw, 34px);
+  font-size: calc(var(--pw) * 0.115);
   font-weight: 400;
   color: #2d1a04;
   text-align: center;
   line-height: 1.1;
-  margin: 4px 0 0;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
-
-/* Subtitle */
-.titleSubtitle {
-  font-family: 'Nunito', sans-serif;
-  font-size: clamp(8px, 2.5vw, 11px);
-  font-weight: 600;
-  color: #7a5220;
-  text-align: center;
-  line-height: 1.5;
   margin: 0;
 }
 
-/* Ornamental divider */
+.titleSubtitle {
+  font-family: 'Nunito', sans-serif;
+  font-size: calc(var(--pw) * 0.038);
+  font-weight: 600;
+  color: #7a5220;
+  text-align: center;
+  line-height: 1.4;
+  margin: 0;
+}
+
 .titleDivider {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: calc(var(--pw) * 0.025);
   width: 80%;
-  margin: 2px 0;
 }
-
 .titleDivider span:first-child,
 .titleDivider span:last-child {
   flex: 1;
@@ -325,15 +251,11 @@
   background: linear-gradient(90deg, transparent, #c8a060, transparent);
   display: block;
 }
+.titleDivider span:nth-child(2) { font-size: calc(var(--pw) * 0.05); }
 
-.titleDivider span:nth-child(2) {
-  font-size: 14px;
-}
-
-/* Edition line */
 .titleEdition {
   font-family: 'Nunito', sans-serif;
-  font-size: 9.5px;
+  font-size: calc(var(--pw) * 0.032);
   font-weight: 700;
   letter-spacing: 1px;
   color: #b8945a;
@@ -342,138 +264,191 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   TITLE PAGE — VERSO (left-hand page, back of title spread)
+   TITLE PAGE — VERSO
 ══════════════════════════════════════════════════════════════════════════════ */
-
 .titleVerso {
   position: relative;
   width: 100%;
   height: 100%;
-  background: linear-gradient(160deg, #fdf4e4 0%, #f8e8c8 100%);
+  background: linear-gradient(160deg, #fdf4e4, #f8e8c8);
   border: 1.5px solid #d4a96a;
-  border-radius: 14px 0 0 14px;
+  border-radius: 12px 0 0 12px;
   overflow: hidden;
   box-sizing: border-box;
   user-select: none;
 }
 
 .titleVersoContent {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100%;
-  padding: 20px 18px 16px 18px;
+  padding: calc(var(--pw) * 0.06) calc(var(--pw) * 0.055) calc(var(--pw) * 0.05);
   box-sizing: border-box;
+  overflow: hidden;
 }
 
-/* Publisher crest */
 .versoCrest {
-  font-size: 32px;
+  font-size: calc(var(--pw) * 0.11);
   line-height: 1;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+  flex-shrink: 0;
 }
-
 .versoPublisher {
   font-family: 'Fredoka One', cursive;
-  font-size: 13px;
+  font-size: calc(var(--pw) * 0.046);
   font-weight: 400;
   color: #8b5e1a;
   letter-spacing: 1px;
-  margin: 2px 0 0;
+  margin: calc(var(--pw) * 0.01) 0 0;
+  flex-shrink: 0;
 }
-
 .versoDivider {
   width: 60%;
   height: 1.5px;
   background: linear-gradient(90deg, transparent, #c8a060, transparent);
-  margin: 10px 0;
+  margin: calc(var(--pw) * 0.03) 0;
+  flex-shrink: 0;
 }
-
-/* About section */
 .versoTitle {
   font-family: 'Fredoka One', cursive;
-  font-size: 16px;
+  font-size: calc(var(--pw) * 0.056);
   font-weight: 400;
   color: #2d1a04;
-  margin: 0 0 8px;
+  margin: 0 0 calc(var(--pw) * 0.025);
   text-align: center;
+  flex-shrink: 0;
 }
-
 .versoBody {
   font-family: 'Nunito', sans-serif;
-  font-size: 10.5px;
+  font-size: calc(var(--pw) * 0.037);
   font-weight: 600;
   color: #6b4c1e;
-  line-height: 1.55;
+  line-height: 1.45;
   text-align: center;
-  margin: 0 0 6px;
+  margin: 0 0 calc(var(--pw) * 0.02);
+  overflow: hidden;
 }
 
-/* Mini animal index */
 .versoAnimalList {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 3px 6px;
-  margin: 8px 0;
+  gap: calc(var(--pw) * 0.012) calc(var(--pw) * 0.02);
+  margin: calc(var(--pw) * 0.025) 0;
   width: 100%;
+  flex-shrink: 0;
 }
-
 .versoAnimalList span {
   font-family: 'Nunito', sans-serif;
-  font-size: 9.5px;
+  font-size: calc(var(--pw) * 0.034);
   font-weight: 700;
   color: #7a5220;
   text-align: center;
   background: rgba(255,235,160,0.5);
   border-radius: 4px;
-  padding: 2px 4px;
+  padding: calc(var(--pw) * 0.01) calc(var(--pw) * 0.015);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Copyright block */
 .versoCopyright {
   margin-top: auto;
   text-align: center;
   border-top: 1px dashed #c8a060;
-  padding-top: 8px;
+  padding-top: calc(var(--pw) * 0.025);
   width: 100%;
+  flex-shrink: 0;
 }
-
 .versoCopyright p {
   font-family: 'Nunito', sans-serif;
-  font-size: 9px;
+  font-size: calc(var(--pw) * 0.032);
   font-weight: 700;
   color: #a07840;
-  margin: 2px 0;
+  margin: 0;
   letter-spacing: 0.3px;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   COVER — extra decorative elements
+   COVERS
 ══════════════════════════════════════════════════════════════════════════════ */
-
+.cover {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #8b5e1a 0%, #c8861e 40%, #a06820 70%, #7a4e14 100%);
+  border-radius: 0 12px 12px 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.coverBack {
+  background: linear-gradient(135deg, #7a4e14, #a06820, #8b5e1a);
+  border-radius: 12px 0 0 12px;
+}
+.coverSpine {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: calc(var(--pw) * 0.08);
+  background: linear-gradient(to right, rgba(0,0,0,0.35), rgba(0,0,0,0.1), transparent);
+}
 .coverDecorTop {
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 6px;
+  height: calc(var(--pw) * 0.018);
   background: linear-gradient(90deg, #f0c060, #fff8c0, #f0c060);
   opacity: 0.6;
 }
-
 .coverDecorBottom {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 6px;
+  height: calc(var(--pw) * 0.018);
   background: linear-gradient(90deg, #f0c060, #fff8c0, #f0c060);
   opacity: 0.6;
 }
-
+.coverContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--pw) * 0.032);
+  padding: calc(var(--pw) * 0.06);
+  text-align: center;
+}
+.coverEmoji {
+  font-size: calc(var(--pw) * 0.22);
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
+}
+.coverTitle {
+  font-family: 'Fredoka One', cursive;
+  font-size: calc(var(--pw) * 0.105);
+  font-weight: 400;
+  color: #fff8e8;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  margin: 0;
+  line-height: 1.1;
+}
+.coverSub {
+  font-family: 'Nunito', sans-serif;
+  font-size: calc(var(--pw) * 0.042);
+  font-weight: 700;
+  color: rgba(255,240,200,0.85);
+  margin: 0;
+}
+.coverBackText {
+  font-family: 'Nunito', sans-serif;
+  font-size: calc(var(--pw) * 0.042);
+  font-weight: 700;
+  color: rgba(255,240,200,0.9);
+  margin: 0;
+}
 .coverBackSub {
   font-family: 'Nunito', sans-serif;
-  font-size: 11px;
+  font-size: calc(var(--pw) * 0.038);
   font-weight: 600;
   color: rgba(255,240,200,0.65);
-  margin: 4px 0 0;
-  letter-spacing: 0.3px;
+  margin: 0;
 }

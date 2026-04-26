@@ -4,33 +4,36 @@ import { Animal } from '../types/animal';
 import { useBookSize } from '../hooks/useBookSize';
 import styles from './FlipBook.module.css';
 
-// ─── Page offset constants ────────────────────────────────────────────────────
-// Page layout inside react-pageflip (0-indexed):
-//   0 = CoverFront  (hard cover, right side)
-//   1 = TitleRecto  (right side of title spread)
-//   2 = TitleVerso  (left side of title spread — back of TitleRecto)
-//   3..N+2 = Animal pages
-//   N+3 = CoverBack (hard cover, left side)
-const ANIMAL_PAGE_OFFSET = 3; // first animal is at index 3
+// Page layout (0-indexed):
+//   0          = CoverFront
+//   1          = TitleRecto
+//   2          = TitleVerso
+//   3 … N+2   = Animal pages
+//   N+3        = CoverBack
+const ANIMAL_OFFSET = 3;
+
+// ─── CSS variable injector ────────────────────────────────────────────────────
+// Every page receives --pw so all rem/% sizing inside is relative to the
+// actual rendered page width, not the viewport.
+function pageStyle(pageW: number): React.CSSProperties {
+  return { '--pw': `${pageW}px` } as React.CSSProperties;
+}
 
 // ─── Animal page ──────────────────────────────────────────────────────────────
 
-interface PageProps {
-  animal: Animal;
-  index: number;
-  total: number;
-}
+interface PageProps { animal: Animal; index: number; total: number; pageW: number; }
 
 const Page = forwardRef<HTMLDivElement, PageProps>(
-  ({ animal, index, total }, ref) => {
+  ({ animal, index, total, pageW }, ref) => {
     const wild = animal.type === 'wild';
     return (
-      <div ref={ref} className={`${styles.page} ${wild ? styles.wild : styles.domestic}`}>
+      <div ref={ref} className={`${styles.page} ${wild ? styles.wild : styles.domestic}`}
+           style={pageStyle(pageW)}>
         <div className={styles.spine} />
         <div className={styles.lines} />
         <div className={styles.content}>
           <div className={`${styles.badge} ${wild ? styles.badgeWild : styles.badgeDomestic}`}>
-            {wild ? '🌿 Wild Animal' : '🏠 Domestic'}
+            {wild ? '🌿 Wild' : '🏠 Domestic'}
           </div>
           <div className={styles.emoji}>{animal.emoji}</div>
           <h2 className={styles.name}>{animal.name}</h2>
@@ -47,46 +50,25 @@ const Page = forwardRef<HTMLDivElement, PageProps>(
 );
 Page.displayName = 'Page';
 
-// ─── Title page — Recto (right-hand page, shown first) ───────────────────────
+// ─── Title Recto ──────────────────────────────────────────────────────────────
 
-const TitleRecto = forwardRef<HTMLDivElement, Record<string, never>>(
-  (_props, ref) => (
-    <div ref={ref} className={styles.titleRecto}>
+interface SizedProps { pageW: number; }
+
+const TitleRecto = forwardRef<HTMLDivElement, SizedProps>(
+  ({ pageW }, ref) => (
+    <div ref={ref} className={styles.titleRecto} style={pageStyle(pageW)}>
       <div className={styles.spine} />
       <div className={styles.lines} />
       <div className={styles.titleRectoContent}>
-        {/* Decorative top band */}
         <div className={styles.titleBand}>
           <span className={styles.titleBandText}>A Collection of Animals</span>
         </div>
-
-        {/* Main emoji cluster */}
-        <div className={styles.titleEmojiRow}>
-          <span>🐕</span><span>🦁</span><span>🐈</span>
-        </div>
-        <div className={styles.titleEmojiRow}>
-          <span>🐘</span><span>🐾</span><span>🦊</span>
-        </div>
-        <div className={styles.titleEmojiRow}>
-          <span>🐄</span><span>🐺</span><span>🐇</span>
-        </div>
-
-        {/* Title */}
+        <div className={styles.titleEmojiRow}><span>🐕</span><span>🦁</span><span>🐈</span></div>
+        <div className={styles.titleEmojiRow}><span>🐘</span><span>🐾</span><span>🦊</span></div>
+        <div className={styles.titleEmojiRow}><span>🐄</span><span>🐺</span><span>🐇</span></div>
         <h1 className={styles.titleHeading}>Animal<br />Flipbook</h1>
-
-        {/* Subtitle */}
-        <p className={styles.titleSubtitle}>
-          Discover domestic &amp; wild animals<br />from around the world
-        </p>
-
-        {/* Decorative divider */}
-        <div className={styles.titleDivider}>
-          <span />
-          <span>🌿</span>
-          <span />
-        </div>
-
-        {/* Edition line */}
+        <p className={styles.titleSubtitle}>Discover domestic &amp; wild animals<br />from around the world</p>
+        <div className={styles.titleDivider}><span /><span>🌿</span><span /></div>
         <p className={styles.titleEdition}>First Edition · 2026</p>
       </div>
     </div>
@@ -94,42 +76,31 @@ const TitleRecto = forwardRef<HTMLDivElement, Record<string, never>>(
 );
 TitleRecto.displayName = 'TitleRecto';
 
-// ─── Title page — Verso (left-hand page, shown as the back/spread) ───────────
+// ─── Title Verso ──────────────────────────────────────────────────────────────
 
-const TitleVerso = forwardRef<HTMLDivElement, Record<string, never>>(
-  (_props, ref) => (
-    <div ref={ref} className={styles.titleVerso}>
-      {/* No spine here — this is the LEFT page */}
+const TitleVerso = forwardRef<HTMLDivElement, SizedProps>(
+  ({ pageW }, ref) => (
+    <div ref={ref} className={styles.titleVerso} style={pageStyle(pageW)}>
       <div className={styles.lines} />
       <div className={styles.titleVersoContent}>
-
-        {/* Publisher block top */}
         <div className={styles.versoCrest}>🐾</div>
         <p className={styles.versoPublisher}>Lokpriyanth Press</p>
-
         <div className={styles.versoDivider} />
-
-        {/* About this book */}
         <h2 className={styles.versoTitle}>About This Book</h2>
         <p className={styles.versoBody}>
           This flipbook takes you on a journey through the animal kingdom —
-          from faithful domestic companions who share our homes, to magnificent
-          wild creatures that roam forests, savannas, and oceans.
+          from faithful domestic companions to magnificent wild creatures.
         </p>
         <p className={styles.versoBody}>
           Each page features a fun fact, a description, and an illustration.
-          Flip through and discover something new about the animals we share
-          our world with.
+          Flip through and discover something new!
         </p>
-
         <div className={styles.versoAnimalList}>
           <span>🐕 Dog</span><span>🐈 Cat</span><span>🐄 Cow</span>
           <span>🐓 Chicken</span><span>🐑 Sheep</span><span>🐇 Rabbit</span>
           <span>🦁 Lion</span><span>🐘 Elephant</span><span>🦊 Fox</span>
           <span>🐺 Wolf</span><span>🦒 Giraffe</span><span>🐧 Penguin</span>
         </div>
-
-        {/* Copyright block bottom */}
         <div className={styles.versoCopyright}>
           <p>© 2026 Lokpriyanth. All rights reserved.</p>
         </div>
@@ -141,15 +112,15 @@ TitleVerso.displayName = 'TitleVerso';
 
 // ─── Covers ───────────────────────────────────────────────────────────────────
 
-const CoverFront = forwardRef<HTMLDivElement, Record<string, never>>(
-  (_props, ref) => (
-    <div ref={ref} className={styles.cover}>
+const CoverFront = forwardRef<HTMLDivElement, SizedProps>(
+  ({ pageW }, ref) => (
+    <div ref={ref} className={styles.cover} style={pageStyle(pageW)}>
       <div className={styles.coverSpine} />
       <div className={styles.coverDecorTop} />
       <div className={styles.coverContent}>
         <div className={styles.coverEmoji}>🐾</div>
         <h1 className={styles.coverTitle}>Animal Flipbook</h1>
-        <p className={styles.coverSub}>Drag a page corner to turn</p>
+        <p className={styles.coverSub}>Drag a corner to turn</p>
       </div>
       <div className={styles.coverDecorBottom} />
     </div>
@@ -157,9 +128,9 @@ const CoverFront = forwardRef<HTMLDivElement, Record<string, never>>(
 );
 CoverFront.displayName = 'CoverFront';
 
-const CoverBack = forwardRef<HTMLDivElement, Record<string, never>>(
-  (_props, ref) => (
-    <div ref={ref} className={`${styles.cover} ${styles.coverBack}`}>
+const CoverBack = forwardRef<HTMLDivElement, SizedProps>(
+  ({ pageW }, ref) => (
+    <div ref={ref} className={`${styles.cover} ${styles.coverBack}`} style={pageStyle(pageW)}>
       <div className={styles.coverContent}>
         <div className={styles.coverEmoji}>🐾</div>
         <p className={styles.coverBackText}>© Made by Lokpriyanth — 2026</p>
@@ -179,25 +150,21 @@ interface FlipBookProps {
 }
 
 const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange }) => {
-  const bookRef    = useRef<HTMLFlipBook>(null);
-  const prevIndex  = useRef(currentIndex);
+  const bookRef   = useRef<HTMLFlipBook>(null);
+  const prevIndex = useRef(currentIndex);
   const { pageW, pageH } = useBookSize();
 
-  // When filter tabs reset index, jump book back to first animal page
   useEffect(() => {
     if (currentIndex !== prevIndex.current) {
       prevIndex.current = currentIndex;
-      bookRef.current?.pageFlip().flip(currentIndex + ANIMAL_PAGE_OFFSET);
+      bookRef.current?.pageFlip().flip(currentIndex + ANIMAL_OFFSET);
     }
   }, [currentIndex]);
 
   const handleFlip = useCallback(
     (e: { data: number }) => {
-      // Subtract the offset to get the animal array index
-      const animalIndex = e.data - ANIMAL_PAGE_OFFSET;
-      if (animalIndex >= 0 && animalIndex < animals.length) {
-        onPageChange(animalIndex);
-      }
+      const idx = e.data - ANIMAL_OFFSET;
+      if (idx >= 0 && idx < animals.length) onPageChange(idx);
     },
     [animals.length, onPageChange]
   );
@@ -229,25 +196,21 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
         onFlip={handleFlip}
         className={styles.flipBook}
       >
-        {/* Hard front cover */}
-        <CoverFront />
+        <CoverFront  pageW={pageW} />
+        <TitleRecto  pageW={pageW} />
+        <TitleVerso  pageW={pageW} />
 
-        {/* Title spread: Recto (right) + Verso (left) */}
-        <TitleRecto />
-        <TitleVerso />
-
-        {/* Animal pages */}
         {animals.map((animal, i) => (
           <Page
             key={`${animal.name}-${animal.type}`}
             animal={animal}
             index={i}
             total={animals.length}
+            pageW={pageW}
           />
         ))}
 
-        {/* Hard back cover */}
-        <CoverBack />
+        <CoverBack pageW={pageW} />
       </HTMLFlipBook>
     </div>
   );
