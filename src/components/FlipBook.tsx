@@ -4,31 +4,19 @@ import { Animal } from '../types/animal';
 import { useBookSize } from '../hooks/useBookSize';
 import styles from './FlipBook.module.css';
 
-// Page layout (0-indexed):
-//   0          = CoverFront
-//   1          = TitleRecto
-//   2          = TitleVerso
-//   3 … N+2   = Animal pages
-//   N+3        = CoverBack
 const ANIMAL_OFFSET = 3;
 
-// ─── CSS variable injector ────────────────────────────────────────────────────
-// Every page receives --pw so all rem/% sizing inside is relative to the
-// actual rendered page width, not the viewport.
-function pageStyle(pageW: number): React.CSSProperties {
-  return { '--pw': `${pageW}px` } as React.CSSProperties;
-}
-
 // ─── Animal page ──────────────────────────────────────────────────────────────
+// Props are ONLY data — no layout/size props.
+// --pw is inherited from the bookWrap ancestor via CSS.
 
-interface PageProps { animal: Animal; index: number; total: number; pageW: number; }
+interface PageProps { animal: Animal; index: number; total: number; }
 
 const Page = forwardRef<HTMLDivElement, PageProps>(
-  ({ animal, index, total, pageW }, ref) => {
+  ({ animal, index, total }, ref) => {
     const wild = animal.type === 'wild';
     return (
-      <div ref={ref} className={`${styles.page} ${wild ? styles.wild : styles.domestic}`}
-           style={pageStyle(pageW)}>
+      <div ref={ref} className={`${styles.page} ${wild ? styles.wild : styles.domestic}`}>
         <div className={styles.spine} />
         <div className={styles.lines} />
         <div className={styles.content}>
@@ -52,11 +40,9 @@ Page.displayName = 'Page';
 
 // ─── Title Recto ──────────────────────────────────────────────────────────────
 
-interface SizedProps { pageW: number; }
-
-const TitleRecto = forwardRef<HTMLDivElement, SizedProps>(
-  ({ pageW }, ref) => (
-    <div ref={ref} className={styles.titleRecto} style={pageStyle(pageW)}>
+const TitleRecto = forwardRef<HTMLDivElement, Record<string, never>>(
+  (_props, ref) => (
+    <div ref={ref} className={styles.titleRecto}>
       <div className={styles.spine} />
       <div className={styles.lines} />
       <div className={styles.titleRectoContent}>
@@ -67,7 +53,9 @@ const TitleRecto = forwardRef<HTMLDivElement, SizedProps>(
         <div className={styles.titleEmojiRow}><span>🐘</span><span>🐾</span><span>🦊</span></div>
         <div className={styles.titleEmojiRow}><span>🐄</span><span>🐺</span><span>🐇</span></div>
         <h1 className={styles.titleHeading}>Animal<br />Flipbook</h1>
-        <p className={styles.titleSubtitle}>Discover domestic &amp; wild animals<br />from around the world</p>
+        <p className={styles.titleSubtitle}>
+          Discover domestic &amp; wild animals<br />from around the world
+        </p>
         <div className={styles.titleDivider}><span /><span>🌿</span><span /></div>
         <p className={styles.titleEdition}>First Edition · 2026</p>
       </div>
@@ -78,9 +66,9 @@ TitleRecto.displayName = 'TitleRecto';
 
 // ─── Title Verso ──────────────────────────────────────────────────────────────
 
-const TitleVerso = forwardRef<HTMLDivElement, SizedProps>(
-  ({ pageW }, ref) => (
-    <div ref={ref} className={styles.titleVerso} style={pageStyle(pageW)}>
+const TitleVerso = forwardRef<HTMLDivElement, Record<string, never>>(
+  (_props, ref) => (
+    <div ref={ref} className={styles.titleVerso}>
       <div className={styles.lines} />
       <div className={styles.titleVersoContent}>
         <div className={styles.versoCrest}>🐾</div>
@@ -112,9 +100,9 @@ TitleVerso.displayName = 'TitleVerso';
 
 // ─── Covers ───────────────────────────────────────────────────────────────────
 
-const CoverFront = forwardRef<HTMLDivElement, SizedProps>(
-  ({ pageW }, ref) => (
-    <div ref={ref} className={styles.cover} style={pageStyle(pageW)}>
+const CoverFront = forwardRef<HTMLDivElement, Record<string, never>>(
+  (_props, ref) => (
+    <div ref={ref} className={styles.cover}>
       <div className={styles.coverSpine} />
       <div className={styles.coverDecorTop} />
       <div className={styles.coverContent}>
@@ -128,9 +116,9 @@ const CoverFront = forwardRef<HTMLDivElement, SizedProps>(
 );
 CoverFront.displayName = 'CoverFront';
 
-const CoverBack = forwardRef<HTMLDivElement, SizedProps>(
-  ({ pageW }, ref) => (
-    <div ref={ref} className={`${styles.cover} ${styles.coverBack}`} style={pageStyle(pageW)}>
+const CoverBack = forwardRef<HTMLDivElement, Record<string, never>>(
+  (_props, ref) => (
+    <div ref={ref} className={`${styles.cover} ${styles.coverBack}`}>
       <div className={styles.coverContent}>
         <div className={styles.coverEmoji}>🐾</div>
         <p className={styles.coverBackText}>© Made by Lokpriyanth — 2026</p>
@@ -154,6 +142,11 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
   const prevIndex = useRef(currentIndex);
   const { pageW, pageH } = useBookSize();
 
+  // --pw on the wrapper div — all page CSS inherits this automatically.
+  // We NEVER pass pageW into the page components themselves, so react-pageflip's
+  // DOM is never touched by React reconciliation after initial mount.
+  const wrapStyle = { '--pw': `${pageW}px` } as React.CSSProperties;
+
   useEffect(() => {
     if (currentIndex !== prevIndex.current) {
       prevIndex.current = currentIndex;
@@ -169,8 +162,21 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
     [animals.length, onPageChange]
   );
 
+  // Memoise the page list so it never changes identity between renders.
+  // react-pageflip requires a stable, non-changing children array.
+  const pages = useRef(
+    animals.map((animal, i) => (
+      <Page
+        key={`${animal.name}-${animal.type}`}
+        animal={animal}
+        index={i}
+        total={animals.length}
+      />
+    ))
+  );
+
   return (
-    <div className={styles.bookWrap}>
+    <div className={styles.bookWrap} style={wrapStyle}>
       <HTMLFlipBook
         ref={bookRef}
         width={pageW}
@@ -196,21 +202,11 @@ const FlipBook: React.FC<FlipBookProps> = ({ animals, currentIndex, onPageChange
         onFlip={handleFlip}
         className={styles.flipBook}
       >
-        <CoverFront  pageW={pageW} />
-        <TitleRecto  pageW={pageW} />
-        <TitleVerso  pageW={pageW} />
-
-        {animals.map((animal, i) => (
-          <Page
-            key={`${animal.name}-${animal.type}`}
-            animal={animal}
-            index={i}
-            total={animals.length}
-            pageW={pageW}
-          />
-        ))}
-
-        <CoverBack pageW={pageW} />
+        <CoverFront />
+        <TitleRecto />
+        <TitleVerso />
+        {pages.current}
+        <CoverBack />
       </HTMLFlipBook>
     </div>
   );
